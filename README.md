@@ -1,4 +1,6 @@
 # STM32 Buisnesscard Manelbrot Explorer
+## Waiting on PCBs for first prototype!
+![STM32 Card Prototype 1](https://git.bpcspace.com/indigo/stm32_business_card/raw/branch/main/preview.png)
 ## This project is actively in progress!
 ## Description
 This card will be powered by 4 zink air batteries (cost effective & high enough discharge) and will allow exploration of the mandelbrot fractal. Cost per card is projected to be about 7$, although I'm spending a lot more money learning. 
