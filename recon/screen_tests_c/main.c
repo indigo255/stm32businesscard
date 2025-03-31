@@ -5,22 +5,25 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#define RES_X             160
-#define RES_Y             80
+#define RES_X             1600
+#define RES_Y             800
 #define DEFAULT_CENTER_X  0
 #define DEFAULT_CENTER_Y  0
 #define MOUSE_BUTTON      0
 #define STEP_SIZE         .25
 #define ZOOM_SIZE         .25
 
+
+#define DECIMAL_LOC           28
+#define DOUBLE_SCALER         (1 << DECIMAL_LOC)
+#define DOUBLE_TO_FIXED(val)  (int32_t)((val) * DOUBLE_SCALER)
+#define FIXED_MULTIPLY(x,y)   ((((uint64_t)(x))*(y)) >> DECIMAL_LOC)
+#define FIXED_TO_DOUBLE(val)  ((val) / (double)DOUBLE_SCALER)
+
 #define INFTY     2
 #define INFTY_SQR INFTY * INFTY
 #define ITERS     255
-
-#define DECIMAL_LOC           26
-#define DOUBLE_SCALER         (1 << DECIMAL_LOC)
-#define DOUBLE_TO_FIXED(val)  (uint32_t)(val << DECIMAL_LOC)
-#define FIXED_MULTIPLY(x,y)   ((uint64_t)(x)*(y)) >> DECIMAL_LOC
+#define INFTY_SQR_FIXED DOUBLE_TO_FIXED(INFTY_SQR)
 
 
 struct camera {
@@ -47,7 +50,6 @@ void zoom_cam(struct camera *cam, double zoom) {
 }
 
 int main() {
-  int key_pressed;
   Color *pixels = malloc(RES_X * RES_Y * sizeof(Color));
   struct camera cam = {
     .min_r = -1,
@@ -62,6 +64,8 @@ int main() {
   Image img = GenImageColor(RES_X, RES_Y, BLUE);
   Texture tex = LoadTextureFromImage(img);
   UnloadImage(img);
+
+  SetTargetFPS(10);
 
   while(!WindowShouldClose()) {
     switch(GetKeyPressed()) {
@@ -91,31 +95,41 @@ int main() {
         break;
     }
     printf("(%f, %f) - (%f, %f)\n", cam.min_r, cam.min_i, cam.max_r, cam.max_i);
+    printf("HERE -> %f, %f\n", 2.3 * 3.4, FIXED_TO_DOUBLE(
+          FIXED_MULTIPLY(
+            (DOUBLE_TO_FIXED(2.3)), (DOUBLE_TO_FIXED(3.4))
+            )));
     {
       //double scale_i = (cam.max_i - cam.min_i) / (double)GetRenderHeight();
       //double scale_r = (cam.max_r - cam.min_r) / (double)GetRenderWidth();
-      double scale_i = (cam.max_i - cam.min_i) / (double)RES_Y;
-      double scale_r = (cam.max_r - cam.min_r) / (double)RES_X;
-      double c_i = cam.max_i;
-      double c_r;
-      double z_i;
-      double z_r;
-      double zn_r, zn_i;
-      int i;
+      int32_t scale_i = DOUBLE_TO_FIXED((cam.max_i - cam.min_i) / (double)RES_Y);
+      int32_t scale_r = DOUBLE_TO_FIXED((cam.max_r - cam.min_r) / (double)RES_X);
+      int32_t c_i = DOUBLE_TO_FIXED(cam.max_i);
+      int32_t c_r, z_i, z_r, zn_i, zn_r;
+      int32_t z_r_2, z_i_2;
       uint8_t color;
+
+      printf("%f, %f\n", FIXED_TO_DOUBLE(scale_r), (cam.max_r - cam.min_r) / (double)RES_X);
+
+      int i;
+      int max = 0;
       for(int y = 0; y < RES_Y; y++) {
-        c_r = cam.min_r;
+        c_r = DOUBLE_TO_FIXED(cam.min_r);
         for(int x = 0; x < RES_X; x++) {
           z_i = 0;
           z_r = 0;
           for(i = 0; i < ITERS; i++) {
-            zn_r = pow(z_r, 2.0) - pow(z_i, 2.0) + c_r;
-            zn_i = (2.0 * z_r * z_i) + c_i;
+            z_r_2 = FIXED_MULTIPLY(z_r, z_r);
+            z_i_2 = FIXED_MULTIPLY(z_i, z_i);
+
+            zn_r = z_r_2 - z_i_2 + c_r;
+
+            zn_i = (FIXED_MULTIPLY((DOUBLE_TO_FIXED(2)), (FIXED_MULTIPLY(z_r, z_i)))) + c_i;
+
             z_i = zn_i;
             z_r = zn_r;
-            if((pow(z_i, 2.0) + pow(z_r, 2.0)) > INFTY_SQR) {
-              break;
-            }
+
+            if(z_i_2 + z_r_2 > INFTY_SQR_FIXED) break;
           }
           color = ((float)i / ITERS) * UINT8_MAX;
           pixels[((y * RES_X) + x)] = (Color){color, color, color, 255};

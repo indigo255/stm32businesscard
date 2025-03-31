@@ -46,7 +46,9 @@ int main() {
   struct camera cam = {
     .min_r = -1,
     .max_r = 1,
-    .min_i = -1,
+
+            yru += di*(targety - yru)/10.;
+        }    .min_i = -1,
     .max_i = 1
   };
   InitWindow(RES_X, RES_Y, "mandelbrot fixed point test");
