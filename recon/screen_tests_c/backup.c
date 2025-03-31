@@ -5,23 +5,17 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#define RES_X             160
-#define RES_Y             80
-#define DEFAULT_CENTER_X  0
-#define DEFAULT_CENTER_Y  0
-#define MOUSE_BUTTON      0
-#define STEP_SIZE         .25
-#define ZOOM_SIZE         .25
+#define RES_X 160
+#define RES_Y 80
+#define DEFAULT_CENTER_X 0
+#define DEFAULT_CENTER_Y 0
+#define MOUSE_BUTTON 0
+#define STEP_SIZE .25
+#define ZOOM_SIZE .25
 
-#define INFTY     2
+#define INFTY 2
 #define INFTY_SQR INFTY * INFTY
-#define ITERS     255
-
-#define DECIMAL_LOC           26
-#define DOUBLE_SCALER         (1 << DECIMAL_LOC)
-#define DOUBLE_TO_FIXED(val)  (uint32_t)(val << DECIMAL_LOC)
-#define FIXED_MULTIPLY(x,y)   ((uint64_t)(x)*(y)) >> DECIMAL_LOC
-
+#define ITERS 255
 
 struct camera {
   double min_r, min_i, max_r, max_i;
@@ -52,11 +46,9 @@ int main() {
   struct camera cam = {
     .min_r = -1,
     .max_r = 1,
-  //  .min_i = -1,
-  //  .max_i = 1
+    .min_i = -1,
+    .max_i = 1
   };
-  cam.min_i = ((double)RES_Y / RES_X) * cam.min_r;
-  cam.max_i = ((double)RES_Y / RES_X) * cam.max_r;
   InitWindow(RES_X, RES_Y, "mandelbrot fixed point test");
 
   Image img = GenImageColor(RES_X, RES_Y, BLUE);
