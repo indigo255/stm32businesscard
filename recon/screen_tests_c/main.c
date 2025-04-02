@@ -4,14 +4,15 @@
 #include <math.h>
 #include <raylib.h>
 #include <raymath.h>
+#include <limits.h>
 
-#define RES_X             1600
-#define RES_Y             800
+#define RES_X             160
+#define RES_Y             80
 #define DEFAULT_CENTER_X  0
 #define DEFAULT_CENTER_Y  0
 #define MOUSE_BUTTON      0
-#define STEP_SIZE         .25
-#define ZOOM_SIZE         .25
+#define STEP_SIZE         .1
+#define ZOOM_SIZE         .1
 
 
 #define DECIMAL_LOC           28
@@ -25,6 +26,69 @@
 #define ITERS     255
 #define INFTY_SQR_FIXED DOUBLE_TO_FIXED(INFTY_SQR)
 
+//#define SHIP
+
+#ifdef SHIP
+Color get_color(int i) {
+  if(i == ITERS) return (Color){0, 0, 0, 255};
+  if(i == 0) return (Color){0, 0, 0, 255};
+    return (Color) {
+        2*(i - 128)+255,
+          0,
+          0,
+        255
+    };
+}
+#else
+Color get_color(int i) {
+  if(i == ITERS) return (Color){0, 0, 0, 255};
+  if(i == 0) return (Color){0, 0, 0, 255};
+  if(i < 128) {
+    return (Color) {
+        2*(i - 128)+255,
+        0,
+        4*(i - 64)+255,
+        255
+    };
+  }
+    return (Color) {
+      0,
+        0,
+      -2*(i - 128)+255,
+        255
+    };
+}
+#endif
+
+/**
+Color get_color(int i) {
+  //return (Color){((float)i / ITERS) * 255, 0, 0, 255};
+  if(i == ITERS) return (Color){0, 0, 0, 255};
+  if(i == 0) return (Color){255, 255, 255, 255};
+  if(i < 85) {
+    return (Color) {
+        0,
+        0,
+        -3*(i - 255),
+        255
+    };
+  }
+  if(i < 170) {
+    return (Color) {
+      0,
+      -3*(i - 85)+255,
+      3*(i - 170)+255,
+      255
+    };
+  }
+  return (Color) { 
+    -3*(i - 85),
+    3*(i - 85)+255,
+    0, 
+    255
+  };
+}
+**/
 
 struct camera {
   double min_r, min_i, max_r, max_i;
@@ -59,13 +123,14 @@ int main() {
   };
   cam.min_i = ((double)RES_Y / RES_X) * cam.min_r;
   cam.max_i = ((double)RES_Y / RES_X) * cam.max_r;
-  InitWindow(RES_X, RES_Y, "mandelbrot fixed point test");
+  InitWindow(160, 80, "mandelbrot fixed point test");
 
   Image img = GenImageColor(RES_X, RES_Y, BLUE);
   Texture tex = LoadTextureFromImage(img);
   UnloadImage(img);
 
   SetTargetFPS(10);
+
 
   while(!WindowShouldClose()) {
     switch(GetKeyPressed()) {
@@ -82,7 +147,6 @@ int main() {
         shift_cam(&cam, -STEP_SIZE, 0);
         break;
       case KEY_W:
-        printf("a\n");
         zoom_cam(&cam, ZOOM_SIZE);
         break;
       case KEY_S:
@@ -107,12 +171,12 @@ int main() {
       int32_t c_i = DOUBLE_TO_FIXED(cam.max_i);
       int32_t c_r, z_i, z_r, zn_i, zn_r;
       int32_t z_r_2, z_i_2;
-      uint8_t color;
 
       printf("%f, %f\n", FIXED_TO_DOUBLE(scale_r), (cam.max_r - cam.min_r) / (double)RES_X);
 
       int i;
-      int max = 0;
+      int min = INT_MAX;
+      int max = INT_MIN;
       for(int y = 0; y < RES_Y; y++) {
         c_r = DOUBLE_TO_FIXED(cam.min_r);
         for(int x = 0; x < RES_X; x++) {
@@ -124,24 +188,30 @@ int main() {
 
             zn_r = z_r_2 - z_i_2 + c_r;
 
+#ifdef SHIP
+            zn_i = abs(FIXED_MULTIPLY((DOUBLE_TO_FIXED(2)), (FIXED_MULTIPLY(z_r, z_i)))) + c_i;
+#else
             zn_i = (FIXED_MULTIPLY((DOUBLE_TO_FIXED(2)), (FIXED_MULTIPLY(z_r, z_i)))) + c_i;
+#endif
 
             z_i = zn_i;
             z_r = zn_r;
 
             if(z_i_2 + z_r_2 > INFTY_SQR_FIXED) break;
           }
-          color = ((float)i / ITERS) * UINT8_MAX;
-          pixels[((y * RES_X) + x)] = (Color){color, color, color, 255};
+          if(i > max) max = i;
+          if(i < min) min = i;
+          pixels[((y * RES_X) + x)] = get_color(i);
           c_r += scale_r;
         }
         c_i -= scale_i;
       }
+    printf("min: %i, max: %i\n", min, max);
     }
 
     BeginDrawing();
     UpdateTexture(tex, pixels);
-    DrawTexture(tex, 0, 0, WHITE);
+    DrawTextureEx(tex, (Vector2){0,0}, 0, GetRenderWidth()/RES_X, WHITE);
     EndDrawing();
   }
 
