@@ -27,7 +27,7 @@
 #define ITERS     255
 #define INFTY_SQR_FIXED DOUBLE_TO_FIXED(INFTY_SQR)
 
-//#define SHIP
+#define SHIP
 
 #ifdef SHIP
 Color get_color(int i) {
