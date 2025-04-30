@@ -16,8 +16,8 @@ I've modified [this repository](https://github.com/afiskon/stm32-st7735) to fit 
 ### (No) FPU
 The STM32F1 lineup doesn't have an FPU, thus fixed point integer arithmetic is used to speed up rendering. The decimal is intentionally too close to the MSB, as this introduces aesthetic visual artifacts at no cost that I think are a nice twist. <br>
 *notice the banding around the set- that's an artifact of pushing fixed point arithmatic beyond its limits* <br>
-![Banding City](https://git.bpcspace.com/indigo/stm32_business_card/src/branch/main/writeup/quick_buildings.png)
-![Banding Spiral](https://git.bpcspace.com/indigo/stm32_business_card/src/branch/main/writeup/quick_spiral.png)
+<img src="./writeup/quick_buildings.png" alt="drawing" width="800"/> <br>
+<img src="./writeup/quick_spiral.png" alt="drawing" width="800"/> <br>
 
 ### MCU Power Consumption
 The software is interrupt based, saving power any time there's not an active job. After 30 seconds, a MOSFET will turn off the backlight and the MCU will in a deeper sleep state, where only a few microamps are consumed. This allows the card to operate without a power switch, as theoretically the sleeping power consumption is insignificant compared to the shelf life of these batteries (a few months).
@@ -41,5 +41,5 @@ Currently, SPI only works consistently at 4mHZ. I have yet to probe it with my o
 I'm used to working with a lot lower spec MCUs, and after the purchase I've found that the price of the STM32f1 is actually quite expensive for it's performance. I might want to try something uber cheap for my next project requiring a higher speed 32 bit processor, as long as it's got a HAL to accelerate development. The ch32v003 looks pretty cool...
 
 ## Other Projects
-[^1]: For another embedded project without any assistance from HAL, check out my (unfinished) [AVR wristwatch](https://git.bpcspace.com/indigo/AVRwristwatch), where everything- from the I2C display and RTC clock is developed from the ground up! 
+[^1]: For another embedded project without any assistance from HAL, check out my (unfinished) [AVR wristwatch](https://git.bpcspace.com/indigo/AVRwristwatch), where everything- from the I2C display and RTC clock is developed from the ground up! <br>
 For a much larger project that's not exactly embedded, check out my [Operating System](https://git.bpcspace.com/indigo/IndigoOS). I haven't been able to work on it since going to Missouri S&T, but some impressive feats include a bootloader, an efficient binary tree/buddy system physical memory allocator, and multi-core execution. It's a lot of code, maybe check it out!
