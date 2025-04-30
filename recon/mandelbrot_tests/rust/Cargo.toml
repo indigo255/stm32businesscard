@@ -1,0 +1,5 @@
+[package]
+name = "mandrel_test"
+
+[dependencies]
+raylib = "5.0"
