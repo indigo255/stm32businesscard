@@ -14,10 +14,10 @@ The software is currently working, but is more a proof of concept (messy and uno
 ### Display
 I've modified [this repository](https://github.com/afiskon/stm32-st7735) to fit my needs. I've had to make some minor changes to utilize the ST7735's sleep mode, and to make the code work for my specific display. I expect I'll need to rewrite the library to manipulate raw registers to optimize SPI communication, as it currently uses HAL and is *very* slow. I'm considering implementing a game as well, which may require I access SPI via DMA.
 ### (No) FPU
-The STM32F1 lineup doesn't have an FPU, thus fixed point integer arithmetic is used to speed up rendering. The decimal is intentionally too close to the MSB, as this introduces aesthetic visual artifacts at no cost that I think are a nice twist.
-*notice the banding around the set- that's an artifact of pushing fixed point arithmatic beyond its limits*
-![](https://git.bpcspace.com/indigo/stm32_business_card/src/branch/main/writeup/quick_buildings.png)
-![](https://git.bpcspace.com/indigo/stm32_business_card/src/branch/main/writeup/quick_spiral.png)
+The STM32F1 lineup doesn't have an FPU, thus fixed point integer arithmetic is used to speed up rendering. The decimal is intentionally too close to the MSB, as this introduces aesthetic visual artifacts at no cost that I think are a nice twist. <br>
+*notice the banding around the set- that's an artifact of pushing fixed point arithmatic beyond its limits* <br>
+![Banding City](https://git.bpcspace.com/indigo/stm32_business_card/src/branch/main/writeup/quick_buildings.png)
+![Banding Spiral](https://git.bpcspace.com/indigo/stm32_business_card/src/branch/main/writeup/quick_spiral.png)
 
 ### MCU Power Consumption
 The software is interrupt based, saving power any time there's not an active job. After 30 seconds, a MOSFET will turn off the backlight and the MCU will in a deeper sleep state, where only a few microamps are consumed. This allows the card to operate without a power switch, as theoretically the sleeping power consumption is insignificant compared to the shelf life of these batteries (a few months).
