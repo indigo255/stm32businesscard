@@ -1,7 +1,11 @@
 /* vim: set ai et ts=4 sw=4: */
+#include <math.h>
+#include "main.h"
+#include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 #include "st7735.h"
 #include "malloc.h"
+#include "stm32f1xx_hal_spi.h"
 #include "string.h"
 
 #define DELAY 0x80
@@ -84,6 +88,17 @@ static const uint8_t
       10,                     //     10 ms delay
     ST7735_DISPON ,    DELAY, //  4: Main screen turn on, no args w/delay
       100 };                  //     100 ms delay
+
+
+//#define ST7735_WriteData(buff, buff_size) spi_write_data((buff), (buff_size))
+//temporary to test def
+static void spi_write_data(uint8_t *data, uint16_t size) {
+    ST7735_DC_GPIO_Port->ODR |= ST7735_DC_Pin;
+    for(uint16_t i = 0; i < size; i++) {
+        while(!(SPI1->SR & SPI_SR_TXE));
+        SPI1->DR = *(data++);
+    }
+}
 
 static void ST7735_Select() {
     HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);

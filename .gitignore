@@ -1,9 +1,0 @@
-# the CSVs of all my parts are ommitted, since I bought some parts that were wrong. I will draft up an official parts list later, or you can ask me now at brettsweiland@gmail.com.
-programmer_fix/
-stm32card_first.csv
-**/.gdbhistory*/
-v1_output/
-kicad/stm32card/stm32card-backups/*
-LCSC_Quote_Exported__20250213_081540.csv
-3dprint_tests/
-**/build/*

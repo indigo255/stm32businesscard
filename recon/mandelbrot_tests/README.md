@@ -1,1 +1,0 @@
-Some simple tests to test my understanding of fixed point arithmatic while waiting for PCBs, as well as a small exersize in Rust. Please note that code is unoptimized in its current state, and will likely not be updated.
