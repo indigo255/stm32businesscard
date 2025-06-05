@@ -96,17 +96,8 @@ void render_mandelbrot(uint16_t *framebuffer, uint16_t *colorscheme, struct came
   int32_t c_r, z_i, z_r, zn_r, z_r_2, z_i_2;
   size_t fb_index = 0;
   int i; 
-
-  /**
-  bool bruh[RES_X * (RES_Y/2)];
-  for(size_t i = 0; i < sizeof(bruh) / sizeof(bruh[0]); i++) {
-    bruh[i] = i % 1;
-  }
-  for(size_t i = sizeof(bruh) / sizeof(bruh[0]); i > 0; i--) {
-    framebuffer[i] = bruh[i];
-  }
-  **/
-
+  
+  //for(;;);
 
   for(int y = y0; y < y0 + h; y++) {
     c_r = c_r0;
@@ -119,6 +110,7 @@ void render_mandelbrot(uint16_t *framebuffer, uint16_t *colorscheme, struct came
 
         zn_r = z_r_2 - z_i_2 + c_r;
 
+        //z_i = abs(FIXED_MULTIPLY((DOUBLE_TO_FIXED(2)), (FIXED_MULTIPLY(z_r, z_i)))) + c_i;
         z_i = (FIXED_MULTIPLY(z_r, z_i) << 1)  + c_i;
 
         z_r = zn_r;
@@ -148,11 +140,24 @@ void draw_mandelbrot(int key_pressed) {
     .max_r = CAM_DEF_MAX_R,
     .min_i = ((double)RES_Y / RES_X) * CAM_DEF_MIN_R,
     .max_i = ((double)RES_Y / RES_X) * CAM_DEF_MAX_R,
+
   };
   static int view_mode = VIEW_UNINIT;
   static uint16_t colorscheme[ITERS];
 
 
+  
+  //we could get rid of this and do some awful bitbashing lol
+  //but for readability, we shant
+  //TODO camera moves l/r more then u/d for some reason
+  /**
+  if(key_pressed & CAM_MOVE_UP)    cam_shift(&cam, 0, STEP_SIZE);
+  if(key_pressed & CAM_MOVE_DOWN)  cam_shift(&cam, 0, -STEP_SIZE);
+  if(key_pressed & CAM_MOVE_RIGHT) cam_shift(&cam, -STEP_SIZE, 0);
+  if(key_pressed & CAM_MOVE_LEFT)  cam_shift(&cam, STEP_SIZE, 0);
+  if(key_pressed & CAM_ZOOM_IN)    cam_zoom(&cam, ZOOM_SIZE);
+  if(key_pressed & CAM_ZOOM_OUT)   cam_zoom(&cam, -ZOOM_SIZE);
+  **/
   
   //yes, I know the following is disgusting. Before I clean it, I just wanna get the general idea out, 
   //it's more efficient in that order
@@ -219,6 +224,7 @@ void draw_mandelbrot(int key_pressed) {
    ST7735_DrawImage(0, top_line, RES_X, (RES_Y/2), framebuffer);
   }
   benchmark_stop();
+
 
   /**
   render_mandelbrot(framebuffer, colorscheme, cam, false, key_pressed);

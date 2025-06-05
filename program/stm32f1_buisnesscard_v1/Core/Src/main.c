@@ -70,13 +70,6 @@ static void MX_TIM4_Init(void);
 //when idling, vreg stop mode, low power mode stop
 //when sleeping, vreg stop mode, low power mode standby (RTC alarm)
 
-#define GPIO_UP           GPIO_PIN_3
-#define GPIO_RIGHT        GPIO_PIN_1
-#define GPIO_DOWN         GPIO_PIN_0
-#define GPIO_LEFT         GPIO_PIN_2
-#define GPIO_A            GPIO_PIN_13
-#define GPIO_B            GPIO_PIN_14
-#define GPIO_BUTTON_REG   GPIOB
 
 bool button_event;
 
@@ -85,35 +78,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   button_event = false;
 }
 
-int button_pressed = KEYCODE_NONE;
+int button_pressed = 0;
 bool button_event;
 
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
   button_event = true;
-  //we can write "modules" that don't need to know the specific pins to know hwat button was pressed
-  //(idk why I felt I needed to do this)
-  switch(pin) {
-    case GPIO_UP:
-      button_pressed = KEYCODE_UP;
-      break;
-    case GPIO_RIGHT:
-      button_pressed = KEYCODE_RIGHT;
-      break;
-    case GPIO_DOWN:
-      button_pressed = KEYCODE_DOWN;
-      break;
-    case GPIO_LEFT:
-      button_pressed = KEYCODE_LEFT;
-      break;
-    case GPIO_A:
-      button_pressed = KEYCODE_A;
-      break;
-    case GPIO_B:
-      button_pressed = KEYCODE_B;
-      break;
-    default:
-      button_pressed = KEYCODE_NONE;
-  }
+  button_pressed = pin;
 }
 /* USER CODE END 0 */
 
@@ -133,7 +103,7 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
+  /* USE CODE BEGIN Init */
 
   /* USER CODE END Init */
 
@@ -155,31 +125,22 @@ int main(void)
   //ST7735_FillScreenFast(ST7735_MAGENTA);
 
   //HAL_GPIO_EXTI_Callback(0xff);
-  benchmark_start();
   draw_mandelbrot(button_pressed);
-  benchmark_stop();
+  BENCHMARK_INIT: //for benchmarking gdb script
   HAL_SuspendTick();
   HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+      
   
-
-  //HAL_SuspendTick();
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  /**
-    ST7735_sleep();
-    HAL_SuspendTick();
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-    **/
   
+  //we'll clean everything up later
   while (1)
   {
     //later we'll impliment menu
     if(button_event) {
+      button_event = false;
       HAL_ResumeTick();
-      HAL_TIM_Base_Stop_IT(&htim2);
       draw_mandelbrot(button_pressed);
+      HAL_TIM_Base_Stop_IT(&htim2);
       HAL_SuspendTick();
       __HAL_TIM_SET_COUNTER(&htim2, 0);
       HAL_TIM_Base_Start_IT(&htim2);
@@ -187,7 +148,7 @@ int main(void)
       HAL_ResumeTick();
     }
     else { //zzzzz
-      ST7735_sleep();
+      //ST7735_sleep();
       HAL_SuspendTick();
       HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
       SystemClock_Config();

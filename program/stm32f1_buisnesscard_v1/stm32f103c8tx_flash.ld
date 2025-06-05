@@ -56,7 +56,7 @@ ENTRY(Reset_Handler)
 _estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x0;      /* required amount of heap  */
-_Min_Stack_Size = 0x4b16; /* required amount of stack */
+_Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -102,7 +102,7 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
+  .ARM.extab : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
   .ARM : {
     __exidx_start = .;
     *(.ARM.exidx*)
@@ -163,6 +163,7 @@ SECTIONS
   } >RAM
 
   /* User_heap_stack section, used to check that there is enough RAM left */
+  /* just a check */
   ._user_heap_stack :
   {
     . = ALIGN(8);

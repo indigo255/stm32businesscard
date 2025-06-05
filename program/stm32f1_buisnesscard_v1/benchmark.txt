@@ -1,0 +1,531 @@
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 15 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+$1 = {min_r = -1, min_i = -0.5, max_r = 1, max_i = 0.5}
+$2 = {min_r = 3.1577176569116192, min_i = 0.22066305108751161, max_r = 3.1577882779434727, max_i = 0.22069836160343248}
+$3 = {min_r = 3.1576023402469482, min_i = 0.22069267606110915, max_r = 3.1576029655564359, max_i = 0.22069298871585336}
+$4 = {min_r = 1.5143340717923357, min_i = -1.4054856689592869e-05, max_r = 1.5143697529846534, max_i = 3.7857394692316253e-06}
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 15 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+$1 = {min_r = -1, min_i = -0.5, max_r = 1, max_i = 0.5}
+$2 = 1.31749451
+$3 = {min_r = 3.1577176569116192, min_i = 0.22066305108751161, max_r = 3.1577882779434727, max_i = 0.22069836160343248}
+$4 = 0.183570281
+$5 = {min_r = 3.1576023402469482, min_i = 0.22069267606110915, max_r = 3.1576029655564359, max_i = 0.22069298871585336}
+$6 = 0.217522398
+$7 = {min_r = 1.5143340717923357, min_i = -1.4054856689592869e-05, max_r = 1.5143697529846534, max_i = 3.7857394692316253e-06}
+$8 = 0.761290252
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 15 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+$1 = {min_r = -1, min_i = -0.5, max_r = 1, max_i = 0.5}
+$2 = 1.31749451
+$3 = {min_r = 3.1577176569116192, min_i = 0.22066305108751161, max_r = 3.1577882779434727, max_i = 0.22069836160343248}
+$4 = 0.183570281
+$5 = {min_r = 3.1576023402469482, min_i = 0.22069267606110915, max_r = 3.1576029655564359, max_i = 0.22069298871585336}
+$6 = 0.217522398
+$7 = {min_r = 1.5143340717923357, min_i = -1.4054856689592869e-05, max_r = 1.5143697529846534, max_i = 3.7857394692316253e-06}
+$8 = 0.761290252
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 15 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+$1 = {min_r = -1, min_i = -0.5, max_r = 1, max_i = 0.5}
+$2 = 1.31749451
+$3 = {min_r = 3.1577176569116192, min_i = 0.22066305108751161, max_r = 3.1577882779434727, max_i = 0.22069836160343248}
+$4 = 0.183570281
+$5 = {min_r = 3.1576023402469482, min_i = 0.22069267606110915, max_r = 3.1576029655564359, max_i = 0.22069298871585336}
+$6 = 0.217522398
+$7 = {min_r = 1.5143340717923357, min_i = -1.4054856689592869e-05, max_r = 1.5143697529846534, max_i = 3.7857394692316253e-06}
+$8 = 0.761290252
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 15 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+$1 = {min_r = -1, min_i = -0.5, max_r = 1, max_i = 0.5}
+$2 = 1.31749451
+$3 = {min_r = 3.1577176569116192, min_i = 0.22066305108751161, max_r = 3.1577882779434727, max_i = 0.22069836160343248}
+$4 = 0.183570281
+$5 = {min_r = 3.1576023402469482, min_i = 0.22069267606110915, max_r = 3.1576029655564359, max_i = 0.22069298871585336}
+$6 = 0.217522398
+$7 = {min_r = 1.5143340717923357, min_i = -1.4054856689592869e-05, max_r = 1.5143697529846534, max_i = 3.7857394692316253e-06}
+$8 = 0.761290252
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+benchmark.gdb:49: Error in sourced command file:
+Error erasing flash with vFlashErase packet
+------- tip of the day (disable with set show-tips off) -------
+The set show-flags on setting will display CPU flags register in the regs context panel
+LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
+───────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────
+ R0   0
+ R1   0x42420000
+ R2   0x12c0c0
+ R3   0x4b03
+ R4   0
+ R5   0x40021000
+ R6   0
+ R7   0x80000000
+ R8   0xffff
+ R9   0x1000
+ R10  0x20000054
+ R11  0x77bdd31d
+ R12  0xf8ff
+ SP   0x20005000
+ LR   0xffffffff
+ PC   0x80038e4
+──────────────────[ DISASM / armcm / thumb mode / set emulate on ]──────────────────
+ ► 0x80038e4 <Reset_Handler>       movs   r0, r0
+   0x80038e6 <Reset_Handler+2>     movs   r0, r0
+   0x80038e8 <Reset_Handler+4>     movs   r0, r0
+   0x80038ea <Reset_Handler+6>     movs   r0, r0
+   0x80038ec <Reset_Handler+8>     movs   r0, r0
+   0x80038ee <Reset_Handler+10>    movs   r0, r0
+   0x80038f0 <Reset_Handler+12>    movs   r0, r0
+   0x80038f2 <Reset_Handler+14>    movs   r0, r0
+   0x80038f4 <Reset_Handler+16>    movs   r0, r0
+   0x80038f6 <Reset_Handler+18>    movs   r0, r0
+   0x80038f8 <Reset_Handler+20>    movs   r0, r0
+─────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────
+In file: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/startup_stm32f103xb.s:64
+   59   .weak Reset_Handler
+   60   .type Reset_Handler, %function
+   61 Reset_Handler:
+   62 
+   63 /* Call the clock system initialization function.*/
+ ► 64     bl  SystemInit
+   65 
+   66 /* Copy the data segment initializers from flash to SRAM */
+   67   ldr r0, =_sdata
+   68   ldr r1, =_edata
+   69   ldr r2, =_sidata
+─────────────────────────────────────[ STACK ]──────────────────────────────────────
+00:0000│ sp 0x20005000
+... ↓       7 skipped
+───────────────────────────────────[ BACKTRACE ]────────────────────────────────────
+ ► 0 0x80038e4 Reset_Handler
+────────────────────────────────────────────────────────────────────────────────────
+Continuing.
+target not halted
+target stm32f1x.cpu was not halted when resume was requested
+Halt timed out, wake up GDB.
+
+Program received signal SIGINT, Interrupt.
+Reset_Handler () at startup_stm32f103xb.s:64
+64	    bl  SystemInit
+LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
+───────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────
+ R0   0
+ R1   0x42420000
+ R2   0x12c0c0
+ R3   0x4b03
+ R4   0
+ R5   0x40021000
+ R6   0
+ R7   0x80000000
+ R8   0xffff
+ R9   0x1000
+ R10  0x20000054
+ R11  0x77bdd31d
+ R12  0xf8ff
+ SP   0x20005000
+ LR   0xffffffff
+ PC   0x80038e4
+──────────────────[ DISASM / armcm / thumb mode / set emulate on ]──────────────────
+ ► 0x80038e4 <Reset_Handler>       movs   r0, r0
+   0x80038e6 <Reset_Handler+2>     movs   r0, r0
+   0x80038e8 <Reset_Handler+4>     movs   r0, r0
+   0x80038ea <Reset_Handler+6>     movs   r0, r0
+   0x80038ec <Reset_Handler+8>     movs   r0, r0
+   0x80038ee <Reset_Handler+10>    movs   r0, r0
+   0x80038f0 <Reset_Handler+12>    movs   r0, r0
+   0x80038f2 <Reset_Handler+14>    movs   r0, r0
+   0x80038f4 <Reset_Handler+16>    movs   r0, r0
+   0x80038f6 <Reset_Handler+18>    movs   r0, r0
+   0x80038f8 <Reset_Handler+20>    movs   r0, r0
+─────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────
+In file: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/startup_stm32f103xb.s:64
+   59   .weak Reset_Handler
+   60   .type Reset_Handler, %function
+   61 Reset_Handler:
+   62 
+   63 /* Call the clock system initialization function.*/
+ ► 64     bl  SystemInit
+   65 
+   66 /* Copy the data segment initializers from flash to SRAM */
+   67   ldr r0, =_sdata
+   68   ldr r1, =_edata
+   69   ldr r2, =_sidata
+─────────────────────────────────────[ STACK ]──────────────────────────────────────
+00:0000│ sp 0x20005000
+... ↓       7 skipped
+───────────────────────────────────[ BACKTRACE ]────────────────────────────────────
+ ► 0 0x80038e4 Reset_Handler
+────────────────────────────────────────────────────────────────────────────────────
+Continuing.
+target not halted
+target stm32f1x.cpu was not halted when resume was requested
+The target is not running when halt was requested, stopping GDB.
+
+Program received signal SIGINT, Interrupt.
+Reset_Handler () at startup_stm32f103xb.s:64
+64	    bl  SystemInit
+LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
+───────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────
+ R0   0
+ R1   0x42420000
+ R2   0x12c0c0
+ R3   0x4b03
+ R4   0
+ R5   0x40021000
+ R6   0
+ R7   0x80000000
+ R8   0xffff
+ R9   0x1000
+ R10  0x20000054
+ R11  0x77bdd31d
+ R12  0xf8ff
+ SP   0x20005000
+ LR   0xffffffff
+ PC   0x80038e4
+──────────────────[ DISASM / armcm / thumb mode / set emulate on ]──────────────────
+ ► 0x80038e4 <Reset_Handler>       movs   r0, r0
+   0x80038e6 <Reset_Handler+2>     movs   r0, r0
+   0x80038e8 <Reset_Handler+4>     movs   r0, r0
+   0x80038ea <Reset_Handler+6>     movs   r0, r0
+   0x80038ec <Reset_Handler+8>     movs   r0, r0
+   0x80038ee <Reset_Handler+10>    movs   r0, r0
+   0x80038f0 <Reset_Handler+12>    movs   r0, r0
+   0x80038f2 <Reset_Handler+14>    movs   r0, r0
+   0x80038f4 <Reset_Handler+16>    movs   r0, r0
+   0x80038f6 <Reset_Handler+18>    movs   r0, r0
+   0x80038f8 <Reset_Handler+20>    movs   r0, r0
+─────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────
+In file: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/startup_stm32f103xb.s:64
+   59   .weak Reset_Handler
+   60   .type Reset_Handler, %function
+   61 Reset_Handler:
+   62 
+   63 /* Call the clock system initialization function.*/
+ ► 64     bl  SystemInit
+   65 
+   66 /* Copy the data segment initializers from flash to SRAM */
+   67   ldr r0, =_sdata
+   68   ldr r1, =_edata
+   69   ldr r2, =_sidata
+─────────────────────────────────────[ STACK ]──────────────────────────────────────
+00:0000│ sp 0x20005000
+... ↓       7 skipped
+───────────────────────────────────[ BACKTRACE ]────────────────────────────────────
+ ► 0 0x80038e4 Reset_Handler
+────────────────────────────────────────────────────────────────────────────────────
+Error erasing flash with vFlashErase packet
+Detaching from program: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/build/stm32f1_buisnesscard_v1.elf, Remote target
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+benchmark.gdb:49: Error in sourced command file:
+Error erasing flash with vFlashErase packet
+------- tip of the day (disable with set show-tips off) -------
+Use the pipe <cmd> | <prog> command to pass output of a GDB/Pwndbg command to a shell program, e.g. pipe elfsections | grep bss. This can also be shortened to: | <cmd> | <prog>
+LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
+───────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────
+ R0   0x40
+ R1   0x80
+ R2   1
+ R3   0x20003548
+ R4   0x97
+ R5   6
+ R6   0x8003a20
+ R7   0
+ R8   0xffff
+ R9   0x1000
+ R10  0x20000054
+ R11  0x77bdd31d
+ R12  0
+ SP   0x20005000
+ LR   0xffffffff
+ PC   0x80038e4
+──────────────────[ DISASM / armcm / thumb mode / set emulate on ]──────────────────
+ ► 0x80038e4 <Reset_Handler>       bl     #SystemInit                 <SystemInit>
+ 
+   0x80038e8 <Reset_Handler+4>     ldr    r0, [pc, #0x2c]     R0, [LoopFillZerobss+14]
+   0x80038ea <Reset_Handler+6>     ldr    r1, [pc, #0x30]     R1, [LoopFillZerobss+18]
+   0x80038ec <Reset_Handler+8>     ldr    r2, [pc, #0x30]     R2, [LoopFillZerobss+22]
+   0x80038ee <Reset_Handler+10>    movs   r3, #0              R3 => 0
+   0x80038f0 <Reset_Handler+12>    b      #Reset_Handler+20           <Reset_Handler+20>
+    ↓
+   0x80038f8 <Reset_Handler+20>    adds   r4, r0, r3
+   0x80038fa <Reset_Handler+22>    cmp    r4, r1
+   0x80038fc <Reset_Handler+24>    blo    #Reset_Handler+14           <Reset_Handler+14>
+ 
+   0x80038fe <Reset_Handler+26>    ldr    r2, [pc, #0x24]     R2, [LoopFillZerobss+26]
+   0x8003900 <Reset_Handler+28>    ldr    r4, [pc, #0x24]     R4, [LoopFillZerobss+30]
+─────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────
+In file: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/startup_stm32f103xb.s:64
+   59   .weak Reset_Handler
+   60   .type Reset_Handler, %function
+   61 Reset_Handler:
+   62 
+   63 /* Call the clock system initialization function.*/
+ ► 64     bl  SystemInit
+   65 
+   66 /* Copy the data segment initializers from flash to SRAM */
+   67   ldr r0, =_sdata
+   68   ldr r1, =_edata
+   69   ldr r2, =_sidata
+─────────────────────────────────────[ STACK ]──────────────────────────────────────
+00:0000│ sp 0x20005000
+... ↓       7 skipped
+───────────────────────────────────[ BACKTRACE ]────────────────────────────────────
+ ► 0 0x80038e4 Reset_Handler
+────────────────────────────────────────────────────────────────────────────────────
+Continuing.
+target not halted
+target stm32f1x.cpu was not halted when resume was requested
+
+Program received signal SIGINT, Interrupt.
+0x08003428 in HAL_PWR_EnterSLEEPMode (Regulator=Regulator@entry=1, SLEEPEntry=SLEEPEntry@entry=1 '\001') at Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c:432
+432	    __WFI();
+LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
+───────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────
+*R0   1
+*R1   1
+*R2   0xe000ed00
+*R3   0
+*R4   0x2000009c
+*R5   1
+*R6   0
+*R7   0x2000004c
+ R8   0xffff
+ R9   0x1000
+ R10  0x20000054
+ R11  0x77bdd31d
+ R12  0
+*SP   0x20004fc0
+ LR   0x8000ea7
+*PC   0x8003428
+──────────────────[ DISASM / armcm / thumb mode / set emulate on ]──────────────────
+ ► 0x8003428 <HAL_PWR_EnterSLEEPMode+24>    bx     lr                          <main+478>
+    ↓
+   0x8000ea6 <main+478>                     ldr    r5, [pc, #0x7c]     R5, [main+604]
+   0x8000ea8 <main+480>                     ldrb   r3, [r5]            R3, [button_event]
+   0x8000eaa <main+482>                   ✔ cbz    r3, #main+534               <main+534>
+    ↓
+   0x8000ede <main+534>                     bl     #HAL_SuspendTick            <HAL_SuspendTick>
+ 
+   0x8000ee2 <main+538>                     movs   r1, #1              R1 => 1
+   0x8000ee4 <main+540>                     mov    r0, r1
+   0x8000ee6 <main+542>                     bl     #HAL_PWR_EnterSTOPMode      <HAL_PWR_EnterSTOPMode>
+ 
+   0x8000eea <main+546>                     bl     #SystemClock_Config         <SystemClock_Config>
+ 
+   0x8000eee <main+550>                     bl     #HAL_ResumeTick             <HAL_ResumeTick>
+ 
+   0x8000ef2 <main+554>                     bl     #ST7735_wake                <ST7735_wake>
+─────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────
+In file: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c:432
+   427 
+   428   /* Select SLEEP mode entry -------------------------------------------------*/
+   429   if(SLEEPEntry == PWR_SLEEPENTRY_WFI)
+   430   {
+   431     /* Request Wait For Interrupt */
+ ► 432     __WFI();
+   433   }
+   434   else
+   435   {
+   436     /* Request Wait For Event */
+   437     __SEV();
+─────────────────────────────────────[ STACK ]──────────────────────────────────────
+00:0000│ sp 0x20004fc0
+01:0004│    0x20004fc4
+02:0008│    0x20004fc8
+... ↓       3 skipped
+06:0018│    0x20004fd8
+07:001c│    0x20004fdc
+───────────────────────────────────[ BACKTRACE ]────────────────────────────────────
+ ► 0 0x8003428 HAL_PWR_EnterSLEEPMode+24
+   1 0x8000ea6 main+478
+   2 0x8003916 Reset_Handler+50
+────────────────────────────────────────────────────────────────────────────────────
+Error erasing flash with vFlashErase packet
+Error erasing flash with vFlashErase packet
+Detaching from program: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/build/stm32f1_buisnesscard_v1.elf, Remote target
+[Inferior 1 (Remote target) detached]
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+benchmark.gdb:49: Error in sourced command file:
+Error erasing flash with vFlashErase packet
+------- tip of the day (disable with set show-tips off) -------
+Use contextprev and contextnext to display a previous context output again without scrolling
+LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
+───────────────[ REGISTERS / show-flags off / show-compact-regs off ]───────────────
+ R0   1
+ R1   1
+ R2   0x40007000
+ R3   4
+ R4   0xe000ed00
+ R5   0x20000050
+ R6   0
+ R7   0x2000004c
+ R8   0xffff
+ R9   0x1000
+ R10  0x20000054
+ R11  0x77bdd31d
+ R12  0
+ SP   0x20005000
+ LR   0xffffffff
+ PC   0x80038e4
+──────────────────[ DISASM / armcm / thumb mode / set emulate on ]──────────────────
+ ► 0x80038e4 <Reset_Handler>       movs   r0, r0
+   0x80038e6 <Reset_Handler+2>     movs   r0, r0
+   0x80038e8 <Reset_Handler+4>     movs   r0, r0
+   0x80038ea <Reset_Handler+6>     movs   r0, r0
+   0x80038ec <Reset_Handler+8>     movs   r0, r0
+   0x80038ee <Reset_Handler+10>    movs   r0, r0
+   0x80038f0 <Reset_Handler+12>    movs   r0, r0
+   0x80038f2 <Reset_Handler+14>    movs   r0, r0
+   0x80038f4 <Reset_Handler+16>    movs   r0, r0
+   0x80038f6 <Reset_Handler+18>    movs   r0, r0
+   0x80038f8 <Reset_Handler+20>    movs   r0, r0
+─────────────────────────────────[ SOURCE (CODE) ]──────────────────────────────────
+In file: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/startup_stm32f103xb.s:64
+   59   .weak Reset_Handler
+   60   .type Reset_Handler, %function
+   61 Reset_Handler:
+   62 
+   63 /* Call the clock system initialization function.*/
+ ► 64     bl  SystemInit
+   65 
+   66 /* Copy the data segment initializers from flash to SRAM */
+   67   ldr r0, =_sdata
+   68   ldr r1, =_edata
+   69   ldr r2, =_sidata
+─────────────────────────────────────[ STACK ]──────────────────────────────────────
+00:0000│ sp 0x20005000
+... ↓       7 skipped
+───────────────────────────────────[ BACKTRACE ]────────────────────────────────────
+ ► 0 0x80038e4 Reset_Handler
+────────────────────────────────────────────────────────────────────────────────────
+Error erasing flash with vFlashErase packet
+Continuing.
+target not halted
+target stm32f1x.cpu was not halted when resume was requested
+shutdown command invoked
+Remote connection closed
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 14 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+Breakpoint 1 at 0x8000e9a: file Core/Src/main.c, line 129.
+Note: automatically using hardware breakpoints for read-only addresses.
+Loading section .isr_vector, size 0x10c lma 0x8000000
+Loading section .text, size 0x38c0 lma 0x8000110
+Loading section .rodata, size 0x9c lma 0x80039d0
+Loading section .init_array, size 0x4 lma 0x8003a6c
+Loading section .fini_array, size 0x4 lma 0x8003a70
+Loading section .data, size 0x30 lma 0x8003a74
+Start address 0x080038e4, load size 15008
+Transfer rate: 15 KB/sec, 2501 bytes/write.
+
+Breakpoint 1, main () at Core/Src/main.c:130
+130	  HAL_SuspendTick();
+$1 = {min_r = -1, min_i = -0.5, max_r = 1, max_i = 0.5}
+$2 = 1.31749451
+$3 = {min_r = 3.1577176569116192, min_i = 0.22066305108751161, max_r = 3.1577882779434727, max_i = 0.22069836160343248}
+$4 = 0.183570281
+$5 = {min_r = 3.1576023402469482, min_i = 0.22069267606110915, max_r = 3.1576029655564359, max_i = 0.22069298871585336}
+$6 = 0.217522398
+$7 = {min_r = 1.5143340717923357, min_i = -1.4054856689592869e-05, max_r = 1.5143697529846534, max_i = 3.7857394692316253e-06}
+$8 = 0.761290252
+Quit
+Detaching from program: /home/indigo/projects/stm32_buisnesscard/program/stm32f1_buisnesscard_v1/build/stm32f1_buisnesscard_v1.elf, Remote target
+Remote connection closed
