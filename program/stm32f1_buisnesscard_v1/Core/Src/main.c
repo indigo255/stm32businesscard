@@ -25,6 +25,7 @@
 #include "st7735.h"
 #include "mandelbrot.h"
 #include "benchmark.h"
+#include "stm32f1xx_it.h"
 //#include "mandelbrot.h"
 
 /* USER CODE END Includes */
@@ -81,10 +82,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 int button_pressed = 0;
 bool button_event;
 
-void HAL_GPIO_EXTI_Callback(uint16_t pin) {
-  button_event = true;
-  button_pressed = pin;
-}
 /* USER CODE END 0 */
 
 /**
@@ -103,7 +100,7 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USE CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
@@ -122,39 +119,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
   ST7735_Init();
   ST7735_InvertColors(false);
-  //ST7735_FillScreenFast(ST7735_MAGENTA);
+  ST7735_FillScreenFast(ST7735_BLUE);
+  HAL_ResumeTick();
+  /* USER CODE END 2 */
 
-  //HAL_GPIO_EXTI_Callback(0xff);
-  draw_mandelbrot(button_pressed);
-  BENCHMARK_INIT: //for benchmarking gdb script
-  HAL_SuspendTick();
-  HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-      
-  
-  
-  //we'll clean everything up later
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    //later we'll impliment menu
-    if(button_event) {
-      button_event = false;
-      HAL_ResumeTick();
-      draw_mandelbrot(button_pressed);
-      HAL_TIM_Base_Stop_IT(&htim2);
-      HAL_SuspendTick();
-      __HAL_TIM_SET_COUNTER(&htim2, 0);
-      HAL_TIM_Base_Start_IT(&htim2);
-      HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-      HAL_ResumeTick();
-    }
-    else { //zzzzz
-      //ST7735_sleep();
-      HAL_SuspendTick();
-      HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-      SystemClock_Config();
-      HAL_ResumeTick();
-      ST7735_wake();
-    }
+    draw_mandelbrot();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -346,6 +319,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+
   /*Configure GPIO pins : PA0 PA1 PA2 PA3 */
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -359,10 +335,23 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PB12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pins : PB13 PB14 */
   GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/

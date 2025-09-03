@@ -35,7 +35,8 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+void SystemClock_Config();
+extern TIM_HandleTypeDef htim2;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -58,13 +59,6 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 
 /* USER CODE BEGIN Private defines */
-#define GPIO_BUTTON_REG     GPIOB
-#define BUTTON_UP           GPIO_PIN_3
-#define BUTTON_RIGHT        GPIO_PIN_2
-#define BUTTON_DOWN         GPIO_PIN_0
-#define BUTTON_LEFT         GPIO_PIN_1
-#define BUTTON_A            GPIO_PIN_13
-#define BUTTON_B            GPIO_PIN_14
 
 
 /* USER CODE END Private defines */

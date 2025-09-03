@@ -14,3 +14,7 @@ void benchmark_stop() {
   __NOP();
 //  __BKPT();
 }
+
+void benchmark() {
+  
+}

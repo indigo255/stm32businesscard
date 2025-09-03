@@ -1,3 +1,15 @@
+/** READ BEFORE JUDING!
+ * Yes, I know this code is a mess. Debug code is added
+ * happhazardly, two cameras are used, etc.
+ * That's because it's a temporary program
+ * to create optimizations and debug rendering issues without hardware.
+ * None of this is going to be included in the project, and the code is thus
+ * not extensible or organized; it really doesn't save any effort to do so.
+ *
+ * This code is meant for my eyes only. You've been warned!
+ *
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -6,6 +18,8 @@
 #include <limits.h>
 #include <complex.h>
 #include <string.h>
+#include <unistd.h>
+#include <time.h>
 
 #define WINDOW_SIZE_X     1600
 #define WINDOW_SIZE_Y     800
@@ -31,8 +45,17 @@
 
 //#define SHIP
 //#undef SHIP
+//#define COLOR_DEBUG
+//#define SHIP
 
-#ifdef SHIP
+Color get_color_dbg(int i) {
+  if(i == ITERS) return (Color){0,0,255,255};
+//  if(i == 0) return (Color){255,255,255,255};
+  return (Color){255,0,255,255};
+}
+  
+
+#ifdef COLOR_DEBUG
 Color get_color(int i) {
   if(i == ITERS) return (Color){0, 0, 0, 255};
   if(i == 0) return (Color){0, 0, 0, 255};
@@ -64,6 +87,14 @@ Color get_color(int i) {
     };
 }
 #endif
+
+//C does remainder, not modulo.
+//TODO optimize for mod 8. Benchmark
+inline int mod(int n, int d) {
+  int r = n % d;
+  return (r < 0) ? r + d : r;
+}
+int mod(int n, int d);
 
 
 struct camera {
@@ -121,17 +152,6 @@ enum DIRECTIONS {
   N, NE, E, SE, S, SW, W, NW
 };
 
-
-//we can inline these if needed
-
-inline bool bitarray_check(uint8_t *array, size_t i) {
-  return array[i/8] & (1 << (i%8));
-}
-
-inline void bitarray_set(uint8_t *array, size_t i) {
-  array[i/8] |= (1 << (i%8));
-}
-
 inline FixedCord get_neighbor_coord(FixedCord from_coord, int direction, FixedCord step) {
   if((direction == NW) || (direction < E)) from_coord.i += step.i;
   if((direction > N) && (direction < S)) from_coord.r += step.r;
@@ -143,40 +163,126 @@ FixedCord get_neighbor_coord(FixedCord from_coord, int direction, FixedCord step
 
 
 size_t get_neighbor_index(size_t from_pixel, int direction) {
-  const size_t neighbor_index_accl[8] = 
+  const int neighbor_index_accl[8] = 
     {-RES_X, -RES_X + 1, 1, RES_X + 1, RES_X, RES_X - 1, -1, -RES_X - 1};
   from_pixel += neighbor_index_accl[direction];
   //canidate for optimization; lots of branches. maybe inline
   return from_pixel;
 }
 
+//we'll be storing info in the green channel to utalize available memory 
+//per pixel.
 
+#define BACKSTACK_SIZE      32
+#define GCHAN_UNRENDERED    0 //don't change; green channel zero'd on cam move
+#define GCHAN_BLOCKED       (1 << 7) //interior element or visiteed
+#define GCHAN_INTERNAL      (1 << 5) //part of set, 0x20
+#define GCHAN_EXTERNAL      (1 << 0) //not part of set, 0x10
+#define GCHAN_INNER_VISITED (1 << 3)
+#define GCHAN_INNER_CLOSED  (1 << 2)
 
-bool bitarray_check(uint8_t *array, size_t i);
-void bitarray_set(uint8_t *array, size_t i);
-#define BITARRAY_SET(array, i) ((array)[(i)/8] |= (1 << ((i) % 8)))
-#define BITARRAY_CLEAR(array, i) ((array)[(i)/8] &= ~(1 << ((i) % 8)))
-#define BITARRAY_CHECK(array, i) ((array)[(i)/8] & (1 << ((i) % 8)))
-          
-
-#define PRESORT_UNSOLVED      (1 << 0)
-#define PRESORT_VISITED       (1 << VISITED)  
-//#define PRESORT_INTERIOR      (1 << INTERIOR) //in set, NOT an edge
-//#define PRESORT_BACKTRACKED   (1 << BACKTRACED)
-//#define PRESORT_EXTERIOR      (1 << 
-
-//we'll be storing info in the green channel to utalize all available memory.
-//the following is bitmasks to do so
-#define GCHAN_RENDERED      (1 << 0)
-#define GCHAN_VISITED       (1 << 1)  
-#define GCHAN_BLOCKED       (1 << 2) //interior element or backtrack
-#define GCHAN_DEBUG         (1 << 3) //extra, not nessesary
 
 /**
 void switch_pixel(coord &this_coord, const coord step, size_t this_index, int dir) {
 
 }
 **/
+
+void debug_step(Color *pix, Texture *tex, size_t index, bool pause) {
+//        SetTargetFPS(0);
+  static bool fuckin_manual_pause_iguess = false;
+  static Camera2D cam = {0};
+  if(!cam.zoom) cam.zoom = (float)GetRenderWidth()/RES_X;
+  static int debug_color = 0;
+  const float dbg_cam_step = 100;
+  const float dbg_cam_zoom = 1.5;
+
+  (pause || fuckin_manual_pause_iguess) ? SetTargetFPS(60) : SetTargetFPS(0);
+
+  
+
+  for(;;) {
+    switch(GetKeyPressed()) {
+      case KEY_UP:
+        cam.offset.y += dbg_cam_step;
+        break;
+      case KEY_DOWN:
+        cam.offset.y -= dbg_cam_step;
+        break;
+      case KEY_RIGHT:
+        cam.offset.x += dbg_cam_step;
+        break;
+      case KEY_LEFT:
+        cam.offset.x -= dbg_cam_step;
+        break;
+      case KEY_W:
+        cam.zoom *= dbg_cam_zoom;
+        break;
+      case KEY_S:
+        cam.zoom /= dbg_cam_zoom;
+        break;
+      case KEY_SPACE:
+        Vector2 mouse_pos = 
+          Vector2Multiply(GetMousePosition(), (Vector2){(double)RES_X / WINDOW_SIZE_X, (double)RES_Y / WINDOW_SIZE_Y});
+        //mouse_pos = Vector2Divide(mouse_pos, (Vector2){cam.zoom, cam.zoom});
+        printf("%f, %f (%lu)\n", mouse_pos.x, mouse_pos.y, ((size_t)mouse_pos.y * RES_X) + (size_t)mouse_pos.x);
+        break;
+      case KEY_ENTER:
+        return;
+      default:
+        BeginDrawing();
+        pix[index] = 
+          (Color) {0, pix[index].g, 255, 255};
+        BeginDrawing();
+        UpdateTexture(*tex, pix);
+        DrawTextureEx(*tex, (Vector2)
+            {0 - cam.offset.x, cam.offset.y}, 0, 
+            cam.zoom, WHITE);
+        EndDrawing();
+        if(!pause && !fuckin_manual_pause_iguess) return;
+    }
+  }
+}
+
+//only need four indecies, however we use 8 because it's more convinient. 
+void detect_borders(bool borders[8], size_t i) {
+  //if this is too slow, it's easy to do it without the modulos.
+  int index_mod = i % RES_X;
+  bzero(borders, sizeof(*borders) * 8);
+  if((i + RES_X) > (RES_X * RES_Y)) {
+    for(int nei_dir = SE; nei_dir <= SW; nei_dir++)
+      borders[nei_dir] = GCHAN_EXTERNAL;
+  }
+  else if(((int)i - RES_X) < 0) {
+    borders[NE] = GCHAN_EXTERNAL;
+    borders[N] = GCHAN_EXTERNAL;
+    borders[NW] = GCHAN_EXTERNAL;
+  }
+  if(index_mod == 0) {
+    for(int nei_dir = SW; nei_dir < NW; nei_dir++)
+      borders[nei_dir] = GCHAN_EXTERNAL;
+  }
+  else if(index_mod == (RES_X - 1)) {
+    for(int nei_dir = NE; nei_dir < SE; nei_dir++)
+      borders[nei_dir] = GCHAN_EXTERNAL;
+  }
+}
+
+void debug_nei_arrays(int *priority, int *presort, size_t index) {
+  int debug_x = index % RES_X;
+  int debug_y = index / RES_X;
+  printf("(%i, %i) %lu: pre [", debug_x, debug_y, index);
+  for(int nd = 0; nd < 8; nd++) printf("%i, ", presort[nd]);
+  printf("], pri [");
+  for(int nd = 0; nd < 8; nd++) printf("%i, ", priority[nd]);
+  printf("]\n");
+}
+
+enum {
+  SCAN_MODE_NONE,
+  SCAN_MODE_SAFE,
+  SCAN_MODE_INTERIOR
+} scan_mode;
 
 unsigned int mandelbrot_bordertrace(struct camera *cam, Color *pixels) {
   //these lookup tables r cheap cuz on the stm32f1, 1 memory read is 1 instruction
@@ -186,229 +292,252 @@ unsigned int mandelbrot_bordertrace(struct camera *cam, Color *pixels) {
   FixedCord c = {.r = 0, .i = DOUBLE_TO_FIXED(cam->max_i)};
   unsigned int total_iters = 0;
   size_t on_pixel = 0;
+  int border_scanning = 0;
 
-  //having these r kinda gross, will restructure later
-  int32_t cam_bord_fixed_n = DOUBLE_TO_FIXED(cam->min_i);
-  int32_t cam_bord_fixed_s = DOUBLE_TO_FIXED(cam->max_i);
-  int32_t cam_bord_fixed_e = DOUBLE_TO_FIXED(cam->max_r);
-  int32_t cam_bord_fixed_w = DOUBLE_TO_FIXED(cam->min_r);
+  
 
+  Image img = GenImageColor(RES_X, RES_Y, BLUE);
+  Texture debug_tex = LoadTextureFromImage(img);
+  UnloadImage(img);
+//  bzero(pixels, RES_X * RES_Y * sizeof(Color));
+//  for(size_t c = 0; c < (RES_X * RES_Y); c++) pixels[c] = (Color){0,0,0,255};
+  
 
-  /**
-  //for keeping track of border only. will organize later
-  uint8_t set[(160*80)/8] = {0};
-  uint8_t unset[(160*80)/8] = {0};
-  **/
   for(int y = 0; y < RES_Y; y++) {
+    border_scanning = 0;
     c.r = DOUBLE_TO_FIXED(cam->min_r);
     for(int x = 0; x < RES_X; x++) {
-      int i = iterate(c);
-      total_iters += i;
-      pixels[on_pixel] = get_color(i);
 
-      /**
-      const Color debug_colors[] = 
-      { (Color) {0xff, 0x00, 0x00, 0xff},
-        (Color) {0xff, 0x00, 0xff, 0xff},
-        (Color) {0x00, 0xff, 0x00, 0xff},
-        (Color) {0x00, 0x00, 0xff, 0xff},
-        (Color) {0x6a, 0x00, 0xff, 0xff}
-      };
+      //c.r = DOUBLE_TO_FIXED((((on_pixel % RES_X) / (double)RES_X) * (cam->max_r - cam->min_r)) + cam->min_r);
+      //c.i = DOUBLE_TO_FIXED((((on_pixel / (double)RES_X) / (double)RES_Y) * (cam->min_i - cam->max_i)) + cam->max_i);
 
-      static int on_dbg_color = 0;
-      **/
-
-      if(i == ITERS) {
-        FixedCord this_coord = c;
-        size_t this_index = on_pixel;
-        int nei_priority[8];
-        int last_nei_priority[8];
-        //only really need to zero green channel
-        bzero(pixels, RES_X * RES_Y * sizeof(*pixels)); 
-        int last_direction = W;
-        int nei_presort[8] = {0};
-
-        //this is so fucking knarly
-        while(true) {
-          //step 1: check pixels around us, fill in neighbors.
-
-          //find if we're pushed against screen border. 
-          //feels gross but I don't think there's a better way
-          if((this_coord.i - scale.i) < cam_bord_fixed_n) {
-            for(int nei_dir = SE; nei_dir <= SW; nei_dir++)
-              nei_presort[nei_dir] = GCHAN_BLOCKED;
+      switch(pixels[on_pixel].g) {
+        case GCHAN_UNRENDERED:
+          if(border_scanning) {
+            //pixels[on_pixel] = get_color(ITERS);
+            //printf("interior\n");
+            pixels[on_pixel] = (Color){0xfe,0,0xfe,0xff};
+            break;
           }
-          else if((this_coord.i + scale.i) > cam_bord_fixed_s) {
-              nei_presort[NE] = GCHAN_BLOCKED;
-              nei_presort[N] = GCHAN_BLOCKED;
-              nei_presort[NW] = GCHAN_BLOCKED;
-          }
-          if((this_coord.r - scale.r) < cam_bord_fixed_w) {
-            for(int nei_dir = SW; nei_dir < NW; nei_dir++)
-              nei_presort[nei_dir] = GCHAN_BLOCKED;
-          }
-          else if((this_coord.r + scale.r) > cam_bord_fixed_e) {
-            for(int nei_dir = NE; nei_dir < SE; nei_dir++)
-              nei_presort[nei_dir] = GCHAN_BLOCKED;
-          }
+          //printf("rendering %i, %i (%lu)\n", x, y, on_pixel);
+          int i = iterate(c);
+          total_iters += i;
+          pixels[on_pixel] = get_color(i);
+          if(i == ITERS) {
+            FixedCord this_coord = c;
+            size_t this_index = on_pixel;
+            bool seperated_from_start = false;
+            bool nei_canidate[8];
+            int last_nei_canidate[8];
+            int nei_presort[8];
+
+            size_t backstack[BACKSTACK_SIZE];
+            size_t backstack_i = 0;
+            int backstack_calls = 0;
+
+            int nei_dir;
+
+            debug_step(pixels, &debug_tex, this_index, false);
+            bool debug_mode = false;
 
 
-          /** now fill in neighbor info based on green channel,
-           *  iterate if no info available.
-           *  if this is to slow we could flatten this; it's predictable
-           *  where there will be info
-           **/  
-          //if this is too slow, get rid of all the modulos. 
-          bool interior = true;
-          for(int nei_dir = 0; nei_dir < 8; nei_dir++) {
-            size_t nei_i;
-            uint8_t gchan_info;
-            nei_i = get_neighbor_index(this_index, nei_dir);
-            gchan_info = pixels[this_index].g;
-            //note that when we move this over, there will be no alpha channel.
-            //gchan_info will be extracted differently!!!
-            if(gchan_info & GCHAN_RENDERED) {
-              gchan_info &= ~(GCHAN_RENDERED);
-              gchan_info ^= GCHAN_BLOCKED << 1;
-              nei_presort[nei_i] = gchan_info;
-              if(!gchan_info) interior = false;
-              /**
-              if(gchan_info & GCHAN_BLOCKED) nei_presort[nei_dir] = -1;
-              else if(gchan_info & GCHAN_VISITED) nei_priority[nei_dir] = 12;
-              else if((pixels[nei_i].r | pixels[nei_i].b) == 0) //unvisited element
-                nei_priority[nei_dir] = 9;
-              else { //exterior
-                interior = false;
-                nei_priority[nei_dir] = -1;
-              }
-              **/
+            
+            bool borders[8];
+            detect_borders(borders, on_pixel);
+            for(nei_dir = 0; nei_dir < 8; nei_dir++) {
+              size_t nei_i;
+              if(borders[nei_dir]) break;
+              nei_i = get_neighbor_index(on_pixel, nei_dir);
+              if(pixels[nei_i].g & GCHAN_EXTERNAL) break;
             }
-            else {
-              int i = iterate(get_neighbor_coord(this_coord, nei_dir, scale));
-              pixels[nei_i] = get_color(i);
-              pixels[nei_i].g |= GCHAN_RENDERED;
-              if(i == ITERS) continue;
-              interior = false;
-            }
-            //TODO if interior true
-            /**
-            if((nei_priority[nei_dir] == 6) && (nei_i > 0)) {
-              if(last_nei_unvisited) {
-                nei_priority[nei_dir] = 3;
-                nei_priority[nei_dir-1] = 3;
-              }
-              else if(nei_priority[nei_dir-1] == 12)
-                nei_priority[nei_dir-1] = 6;
-              LAST_nei_unvisited = true;
-            }
-            else last_nei_unvisited = false;
-            **/
-          }
-          if(interior) {
-            memcpy(last_nei_priority, nei_priority, sizeof(nei_priority));
-            pixels[this_index].g |= GCHAN_BLOCKED;
-            this_index = get_neighbor_index(this_index, (last_direction + 4) % 8);
-            this_coord = get_neighbor_coord(
-                this_coord, (last_direction + 4) % 8, scale);
 
-          }
-          else {
-            for(int nei_dir = 0; nei_dir < 8; nei_dir++) {
-              int offset_cw = (last_direction - nei_dir) % 8;
-              int offset_ccw = (nei_dir - last_direction) % 8;
-              int forward_offset;
-              switch(nei_presort[nei_dir]) {
-                case GCHAN_VISITED:
-                  nei_priority[nei_dir] = 12;
-                  break;
-                case GCHAN_BLOCKED:
-                  nei_priority[nei_dir] = -1;
-                  break;
-                default: //unvisited element
-                  if((nei_presort[(nei_dir - 1) % 8] == 0) || 
-                      (nei_presort[(nei_dir + 1) % 8] == 0)) {
-                    nei_priority[nei_dir] = 3;
-                    break;
-                  }
-                  if((nei_presort[(nei_dir - 1) % 8] == GCHAN_VISITED) || 
-                      (nei_presort[(nei_dir + 1) % 8] == GCHAN_VISITED)) {
-                    nei_priority[nei_dir] = 6;
-                    break;
-                  }
-                  nei_priority[nei_dir] = 9;
-                  break;
-              }
-              forward_offset = (offset_cw < offset_ccw) ? offset_cw : offset_ccw;
-              if(forward_offset < 3) nei_priority[nei_dir] -= (3-forward_offset);
+            if(nei_dir >= 8) {
+              border_scanning = SCAN_MODE_INTERIOR;
+              break;
             }
-          }
-          for(int priority = 0; priority < 12; priority++) {
-            for(int nei_dir = 0; nei_dir < 8; nei_dir++) {
-              if(nei_priority[nei_dir] != priority) continue;
-              //switch pixels!!!!1!!
-              memcpy(last_nei_priority, nei_priority, sizeof(nei_priority));
-              last_direction = nei_dir;
-              this_index = get_neighbor_index(this_index, nei_dir);
-              this_coord = get_neighbor_coord(this_coord, nei_dir, scale);
+
+            while(true) {
+              detect_borders(borders, this_index);
+              debug_step(pixels, &debug_tex, this_index, false);
+              if(debug_mode) debug_step(pixels, &debug_tex, on_pixel, debug_mode);
               
-              goto drunkaloneandunemployed;
+              //step 1: check pixels around us, fill in neighbors.
+              bzero(nei_presort, sizeof(nei_presort));
+
+//              this_coord.r = DOUBLE_TO_FIXED((((this_index % RES_X) / (double)RES_X) * (cam->max_r - cam->min_r)) + cam->min_r);
+//              this_coord.i = DOUBLE_TO_FIXED((((this_index / (double)RES_X) / (double)RES_Y) * (cam->min_i - cam->max_i)) + cam->max_i);
+              /** now fill in neighbor info based on green channel,
+               *  iterate if no info available.
+               *  if this is to slow we could flatten this; it's predictable
+               *  where there will be info
+               **/  
+              bool start_is_nei = false;
+              for(int nei_dir = 0; nei_dir < 8; nei_dir++) {
+                size_t nei_i;
+                uint8_t gchan_info;
+
+                //happens if we're pushed against the screen
+                if(borders[nei_dir]) {
+                  nei_presort[nei_dir] = GCHAN_EXTERNAL;
+                  continue;
+                }
+
+                nei_i = get_neighbor_index(this_index, nei_dir);
+                gchan_info = pixels[nei_i].g;
+                if(nei_i == on_pixel) start_is_nei = true;
+                //note that when we move this over, there will be no alpha channel.
+                //gchan_info will be extracted differently!!!
+                if(gchan_info) nei_presort[nei_dir] = gchan_info;
+                else {
+                  int i = iterate(get_neighbor_coord(this_coord, nei_dir, scale));
+                  pixels[nei_i] = get_color(i);
+                  nei_presort[nei_dir] = (i >= ITERS) ? GCHAN_INTERNAL : GCHAN_EXTERNAL;
+                  pixels[nei_i].g = nei_presort[nei_dir];
+                }
+              }
+              if(!start_is_nei && !seperated_from_start && (this_index != on_pixel)) seperated_from_start = true;
+              if(start_is_nei && seperated_from_start) {
+                pixels[this_index].g = GCHAN_BLOCKED;
+                break;
+              }
+
+              int edge_cnt = 0;
+              //see what neighbors are good canidates for the next pixel in our path
+              for(int nei_dir = 0; nei_dir < 8; nei_dir += 2) {
+                int nei_edge_i;
+                if(nei_presort[nei_dir] != GCHAN_INTERNAL) {
+                  continue; 
+                }
+
+                for(nei_edge_i = -2; nei_edge_i <= 2; nei_edge_i++) {
+                  int nei_edge_mod = mod((nei_dir + nei_edge_i), 8);
+                  if((nei_presort[nei_edge_mod] == GCHAN_EXTERNAL) || borders[nei_edge_mod]) break;
+                }
+
+                //no edge found
+                if(nei_edge_i > 2) continue;
+
+                //narrow bridge scenario
+                if(nei_presort[mod((nei_dir + 1), 8)] & nei_presort[mod((nei_dir - 1), 8)] & GCHAN_EXTERNAL) 
+                  continue;
+
+                edge_cnt++;
+                nei_canidate[nei_dir] = true;
+              }
+              if(edge_cnt >= 2) backstack[backstack_i++ % BACKSTACK_SIZE] = this_index;
+
+              //now go to canidate with lowest prioraty
+              pixels[this_index].g = GCHAN_BLOCKED;
+              for(int nei_dir = 0; nei_dir < 8; nei_dir += 2) {
+                if(!nei_canidate[nei_dir]) continue;
+                backstack_calls = 0;
+                this_index = get_neighbor_index(this_index, nei_dir);
+                this_coord = get_neighbor_coord(this_coord, nei_dir, scale);
+                goto NEXT_PIXEL;
+              }
+              if((backstack_calls++ > BACKSTACK_SIZE) || (backstack_i < 1)) break;
+              this_index = backstack[--backstack_i % BACKSTACK_SIZE];
+              this_coord.r = DOUBLE_TO_FIXED((((this_index % RES_X) / (double)RES_X) * (cam->max_r - cam->min_r)) + cam->min_r);
+              this_coord.i = DOUBLE_TO_FIXED((((this_index / (double)RES_X) / (double)RES_Y) * (cam->min_i - cam->max_i)) + cam->max_i);
+              NEXT_PIXEL:
+              for(int i = 0; i < 8; i++) nei_canidate[i] = false;
             }
+            debug_step(pixels, &debug_tex, this_index, true);
           }
-          drunkaloneandunemployed:
-        }
+          else pixels[on_pixel].g = GCHAN_EXTERNAL;
+          break;
+          /**
+        case GCHAN_INNER_CLOSED:
+          if(((x + 2) < RES_X) && (pixels[on_pixel + 1].g == GCHAN_UNRENDERED)) border_scanning = SCAN_MODE_NONE;
+          break;
+          **/
+        default: 
+          border_scanning = SCAN_MODE_NONE;
       }
       on_pixel++;
       c.r += scale.r;
     }
     c.i -= scale.i;
+    border_scanning = false;
   }
+  debug_step(pixels, &debug_tex, 0, true);
+  for(size_t i = 0; i < (RES_X * RES_Y); i++) pixels[i].g = 0;
   return total_iters;
 }
 
 unsigned int mandelbrot_unoptimized(struct camera *cam, Color *pixels) {
-  FixedCord scale = { .r = DOUBLE_TO_FIXED((cam->max_r - cam->min_r) / (double)RES_X), .i = DOUBLE_TO_FIXED((cam->max_i - cam->min_i) / (double)RES_Y) };
-  FixedCord c = { .r = 0, .i = DOUBLE_TO_FIXED(cam->max_i) };
+  FixedCord scale = { 
+    .r = DOUBLE_TO_FIXED((cam->max_r - cam->min_r) / (double)RES_X), 
+    .i = DOUBLE_TO_FIXED((cam->max_i - cam->min_i) / (double)RES_Y)};
+  FixedCord c = { .r = DOUBLE_TO_FIXED(cam->min_r), .i = DOUBLE_TO_FIXED(cam->max_i) };
   unsigned int total_iters = 0;
+  size_t on_pixel = 0;
   for(int y = 0; y < RES_Y; y++) {
     c.r = DOUBLE_TO_FIXED(cam->min_r);
     for(int x = 0; x < RES_X; x++) {
       int i = iterate(c);
+      //c.r = DOUBLE_TO_FIXED((((on_pixel % RES_X) / (double)RES_X) * (cam->max_r - cam->min_r)) + cam->min_r);
+      //c.i = DOUBLE_TO_FIXED((((on_pixel / (double)RES_X) / (double)RES_Y) * (cam->min_i - cam->max_i)) + cam->max_i);
       total_iters += i;
       pixels[((y * RES_X) + x)] = get_color(i);
-      c.r += scale.r;
+      on_pixel++;
+      c.r += scale.r;      
     }
     c.i -= scale.i;
   }
   return total_iters;
 }
 
-void test() {
-  uint8_t bitarray[(160*80)/8] = {0};
-  int test_i = 9;
-  BITARRAY_SET(bitarray, test_i);
-  printf("%s\n", BITARRAY_CHECK(bitarray, 9) ? "true" : "false");
-}
-
 int main() {
   //test();
   //return 0;
-  Color *pixels = malloc(RES_X * RES_Y * sizeof(Color));
-  struct camera cam = {
+  Color *pixels_unoptimized = malloc(RES_X * RES_Y * sizeof(Color));
+  Color *pixels_optimized = malloc(RES_X * RES_Y * sizeof(Color));
+  bool optimized = false;
+  //(1.514379082621093886019, 0.000033222739567139065) - (1.514381385800912305228, 0.000034374329476534746)
+
+  struct camera cam_default = {
     .min_r = -1,
-    .max_r = 1,
-  //  .min_i = -1,
-  //  .max_i = 1
+    .max_r = 1
   };
-  cam.min_i = ((double)RES_Y / RES_X) * cam.min_r;
-  cam.max_i = ((double)RES_Y / RES_X) * cam.max_r;
+  cam_default.min_i = ((double)RES_Y / RES_X) * cam_default.min_r;
+  cam_default.max_i = ((double)RES_Y / RES_X) * cam_default.max_r;
+    
+
+  //done
+  //.min_r = 0.340060821337554164412, .min_i = -0.076399869494282027227, .max_r = 0.340671385211165078655, .max_i = -0.076094587557451340287 
+
+  //done
+  //.min_r = 0.348347456407892719366, .min_i = -0.092130353675640097588, .max_r = 0.349033773135021985201, .max_i = -0.091787195312047098472
+
+
+  //has internal noise 
+  //.min_r = 0.348416088080605645949, .min_i = -0.092130353675640097588, .max_r = 0.349102404807734911785, .max_i = -0.091787195312047098472
+
+  //needs diagnol transfer
+  //.min_r = 0.352126044212195454808, .min_i = -0.101818891004586714599, .max_r = 0.354169737175103083171, .max_i = -0.100797044523048578979
+
+  //works
+  //.min_r = 1.514379082621093886019, .min_i = 0.000033222739567139065, .max_r = 1.514381385800912305228, .max_i = 0.000034374329476534746
+
+//  unusual issue; complete rendered border
+  //  .min_r = 0.426539347230382670517, .min_i = 0.218210183100018217939, .max_r = 0.427445609943903681582, .max_i = 0.218663314456816582076 
+
+
+  
+  struct camera cam = {
+    .min_r = -0.640818352996663453958, .min_i = 0.410802460984564632440, .max_r = -0.637784130994323406050, .max_i = 0.412319571985918953416
+  };
+
+//
   InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "mandelbrot fixed point test");
+  SetTraceLogLevel(LOG_ERROR);
 
   Image img = GenImageColor(RES_X, RES_Y, BLUE);
   Texture tex = LoadTextureFromImage(img);
   UnloadImage(img);
 
-  SetTargetFPS(0);
-
+  SetTargetFPS(60);
 
   while(!WindowShouldClose()) {
     switch(GetKeyPressed()) {
@@ -430,21 +559,47 @@ int main() {
       case KEY_S:
         zoom_cam(&cam, -ZOOM_SIZE);
         break;
+      case KEY_SPACE:
+        optimized = !optimized;
+        break;
       default:
         BeginDrawing();
         EndDrawing();
         continue;
         break;
     }
-    printf("(%.21f, %.21f) - (%.21f, %.21f)\n", cam.min_r, cam.min_i, cam.max_r, cam.max_i);
+    printf(".min_r = %.21f, .min_i = %.21f, .max_r = %.21f, .max_i = %.21f\n", cam.min_r, cam.min_i, cam.max_r, cam.max_i);
 
-    printf("Unoptimized: %u iterations\n", mandelbrot_unoptimized(&cam, pixels));
-    printf("Border tracing: %u iterations\n", mandelbrot_bordertrace(&cam, pixels));
+
+    clock_t begin, end;
+    double time_unoptimized;
+    double time_optimized;
+
+    for(int i = 0; i < (RES_X * RES_Y); i++) { pixels_unoptimized[i] = (Color){0, 0, 0, 0xff}; }
+    for(int i = 0; i < (RES_X * RES_Y); i++) { pixels_optimized[i] = (Color){0, 0, 0, 0xff}; }
+
+    begin = clock();
+    unsigned int unoptimized_iters = mandelbrot_unoptimized(&cam, pixels_unoptimized);
+    end = clock();
+
+    time_unoptimized = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Unoptimized: %u iterations, %f seconds\n", unoptimized_iters, time_unoptimized);
+
+    begin = clock();
+    unsigned int optimized_iters = mandelbrot_bordertrace(&cam, pixels_optimized);
+    end = clock();
+
+    time_optimized = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Border tracing: %u iterations, %f seconds\n", optimized_iters, time_optimized); 
+
+    printf("border tracing does %f%% of nieve approach\n", ((float)optimized_iters / unoptimized_iters) * 100);
 
     BeginDrawing();
-    UpdateTexture(tex, pixels);
+    printf("%s\n", optimized ? "optimized mode" : "unoptimized mode");
+    UpdateTexture(tex, optimized ? pixels_optimized : pixels_unoptimized);
     DrawTextureEx(tex, (Vector2){0,0}, 0, (float)GetRenderWidth()/RES_X, WHITE);
     EndDrawing();
+
   }
 
   return 0;

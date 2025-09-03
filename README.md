@@ -1,3 +1,7 @@
+# THIS README IS NOW OUTDATED. THE PROJECT IS WAY COOLER AND AN ARTICLE IS COMING SOON!
+I've implimented my own border tracing algorithim to dramatically speed up rendering. There's a few other optimizations, such as shifting around image buffers, etc. <br>
+Software is still in disarray and could be optimized, however it runs smoothly. Hardware is working, I haven't had time to test all functionallity though. The battery does charge and discharge safely (cut off at 1v).<br>
+
 # STM32 Mandelbrot Explorer Buisness Card
 A battery powered business card that can explore the Mandelbrot set. Meant to be cheaply made for handing out. Will likely include a flappy bird clone to encourage recruiter competition.
 # Project in development! See below for a brief write up.

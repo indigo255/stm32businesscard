@@ -27,6 +27,9 @@ extern SPI_HandleTypeDef ST7735_SPI_PORT;
 #define ST7735_DC_Pin        GPIO_PIN_0 //data command pin - RS on datasheet
 #define ST7735_DC_GPIO_Port  GPIOB
 
+#define BACKLIGHT_PORT       GPIOB
+#define BACKLIGHT_PIN        GPIO_PIN_15
+
 // AliExpress/eBay 1.8" display, default orientation
 /*
 #define ST7735_IS_160X128 1

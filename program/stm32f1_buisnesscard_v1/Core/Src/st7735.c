@@ -7,6 +7,7 @@
 #include "malloc.h"
 #include "stm32f1xx_hal_spi.h"
 #include "string.h"
+#include "gpio.h"
 
 #define DELAY 0x80
 
@@ -314,6 +315,7 @@ void ST7735_sleep() {
 	ST7735_Select();
     ST7735_WriteCommand(ST7735_SLPIN);
 	ST7735_Unselect();
+    HAL_GPIO_WritePin(BACKLIGHT_PORT, BACKLIGHT_PIN, GPIO_PIN_RESET);
     HAL_Delay(200);
 }
 
@@ -322,5 +324,6 @@ void ST7735_wake() {
 	ST7735_Select();
     ST7735_WriteCommand(ST7735_SLPOUT);
 	ST7735_Unselect();
+    HAL_GPIO_WritePin(BACKLIGHT_PORT, BACKLIGHT_PIN, GPIO_PIN_SET);
     HAL_Delay(200);
 }
