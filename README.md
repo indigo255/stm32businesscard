@@ -4,7 +4,9 @@ There's a few other optimizations, such as shifting around image buffers, etc. <
 ## Also, the card is rechargable now.
 Software is still in disarray and could be optimized, however it runs smoothly. Hardware is working, I haven't had time to test all functionallity though. The battery does charge and discharge safely (cut off at 1v).<br>
 ## Here's a crummy picture of the card.
-
+![STM32 Card Prototype 2](https://git.bpcspace.com/indigo/stm32_business_card/raw/branch/main/imgs/new_card.jpg)
+## A quick video of the border tracing in action- a better video coming soon.
+![border tracing demo](https://git.bpcspace.com/indigo/stm32_business_card/raw/branch/main/imgs/border_demo.mkv)
 
 
 <br><br><br><br><br><br><br>
