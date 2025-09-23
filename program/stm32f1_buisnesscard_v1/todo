@@ -1,0 +1,6 @@
+up + down + 2 secs: enable debug mode
+  right: go to next slide
+  up: show border tracing
+
+enable zoom/pan limits
+

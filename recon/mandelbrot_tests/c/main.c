@@ -189,6 +189,7 @@ void switch_pixel(coord &this_coord, const coord step, size_t this_index, int di
 **/
 
 void debug_step(Color *pix, Texture *tex, size_t index, bool pause) {
+//  return;
 //        SetTargetFPS(0);
   static bool fuckin_manual_pause_iguess = false;
   static Camera2D cam = {0};
@@ -197,7 +198,7 @@ void debug_step(Color *pix, Texture *tex, size_t index, bool pause) {
   const float dbg_cam_step = 100;
   const float dbg_cam_zoom = 1.5;
 
-  (pause || fuckin_manual_pause_iguess) ? SetTargetFPS(60) : SetTargetFPS(0);
+//  (pause || fuckin_manual_pause_iguess) ? SetTargetFPS(60) : SetTargetFPS(0);
 
   
 
@@ -232,14 +233,15 @@ void debug_step(Color *pix, Texture *tex, size_t index, bool pause) {
       default:
         BeginDrawing();
         pix[index] = 
-          (Color) {0, pix[index].g, 255, 255};
+          (Color) {255, pix[index].g, 255, 255};
         BeginDrawing();
         UpdateTexture(*tex, pix);
         DrawTextureEx(*tex, (Vector2)
             {0 - cam.offset.x, cam.offset.y}, 0, 
             cam.zoom, WHITE);
         EndDrawing();
-        if(!pause && !fuckin_manual_pause_iguess) return;
+        return;
+ //       if(!pause && !fuckin_manual_pause_iguess) return;
     }
   }
 }
@@ -316,7 +318,7 @@ unsigned int mandelbrot_bordertrace(struct camera *cam, Color *pixels) {
           if(border_scanning) {
             //pixels[on_pixel] = get_color(ITERS);
             //printf("interior\n");
-            pixels[on_pixel] = (Color){0xfe,0,0xfe,0xff};
+            pixels[on_pixel] = (Color){0x00,0,0x0,0xff};
             break;
           }
           //printf("rendering %i, %i (%lu)\n", x, y, on_pixel);
@@ -446,11 +448,6 @@ unsigned int mandelbrot_bordertrace(struct camera *cam, Color *pixels) {
           }
           else pixels[on_pixel].g = GCHAN_EXTERNAL;
           break;
-          /**
-        case GCHAN_INNER_CLOSED:
-          if(((x + 2) < RES_X) && (pixels[on_pixel + 1].g == GCHAN_UNRENDERED)) border_scanning = SCAN_MODE_NONE;
-          break;
-          **/
         default: 
           border_scanning = SCAN_MODE_NONE;
       }
@@ -525,9 +522,7 @@ int main() {
 
 
   
-  struct camera cam = {
-    .min_r = -0.640818352996663453958, .min_i = 0.410802460984564632440, .max_r = -0.637784130994323406050, .max_i = 0.412319571985918953416
-  };
+  struct camera cam = (struct camera) {-0.641121775196897503157, 0.410802460984564632440, -0.638087553194557455249, 0.412319571985918953416};
 
 //
   InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "mandelbrot fixed point test");
@@ -537,7 +532,7 @@ int main() {
   Texture tex = LoadTextureFromImage(img);
   UnloadImage(img);
 
-  SetTargetFPS(60);
+  SetTargetFPS(0);
 
   while(!WindowShouldClose()) {
     switch(GetKeyPressed()) {
@@ -568,7 +563,8 @@ int main() {
         continue;
         break;
     }
-    printf(".min_r = %.21f, .min_i = %.21f, .max_r = %.21f, .max_i = %.21f\n", cam.min_r, cam.min_i, cam.max_r, cam.max_i);
+    //printf(".min_r = %.21f, .min_i = %.21f, .max_r = %.21f, .max_i = %.21f\n", cam.min_r, cam.min_i, cam.max_r, cam.max_i);
+    printf("(struct camera) {%.21f, %.21f, %.21f, %.21f}\n", cam.min_r, cam.min_i, cam.max_r, cam.max_i);
 
 
     clock_t begin, end;
@@ -586,7 +582,7 @@ int main() {
     printf("Unoptimized: %u iterations, %f seconds\n", unoptimized_iters, time_unoptimized);
 
     begin = clock();
-    unsigned int optimized_iters = mandelbrot_bordertrace(&cam, pixels_optimized);
+    unsigned int optimized_iters = mandelbrot_bordertrace(&cam, pixels_unoptimized);
     end = clock();
 
     time_optimized = (double)(end - begin) / CLOCKS_PER_SEC;

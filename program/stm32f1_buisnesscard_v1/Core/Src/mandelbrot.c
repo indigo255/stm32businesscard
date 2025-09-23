@@ -5,6 +5,7 @@
 #include "main.h"
 #include "gpio.h"
 #include "idle.h"
+#include "stm32f1xx_hal_spi.h"
 
 #define RES_X             160
 #define RES_Y             80
@@ -23,12 +24,6 @@
 #define INFTY_SQR INFTY * INFTY
 #define ITERS     255
 #define INFTY_SQR_FIXED DOUBLE_TO_FIXED(INFTY_SQR)
-
-//TODO move to some hardware.h or somethin
-//channel order: B, G, R
-#define R_BITS  5
-#define G_BITS  6
-#define B_BITS  5
 
 #define G_MASK  0xe007
 
@@ -59,24 +54,24 @@ typedef struct {
   int32_t r; int32_t i;
 } FixedCord;
 
-struct camera {
-  double min_r, min_i, max_r, max_i;
-};
 
-struct window {
-  unsigned int x0, y0, w, h;
-};
 
-//C does remainder, not modulo.
-//TODO optimize for mod 8. Benchmark
-inline int mod(int n, int d) {
-  int r = n % d;
-  return (r < 0) ? r + d : r;
+int mod8(int n) {
+  //I don't understand how, but somehow just anding the result is slower...?
+  //I've got too many things on my plate to disassemble this, but feel free to look into it yourself
+  int r = n % 8;
+  return (r < 0) ? r + 8 : r;
 }
-int mod(int n, int d);
+/**
+inline __attribute__((forced_inline)) int mod8(int n) {
+  return (n + 8) & 0b111;
+}
+**/
+int mod8(int n);
 
 
-inline FixedCord get_neighbor_coord(FixedCord from_coord, int direction, FixedCord step) {
+
+FixedCord get_neighbor_coord(FixedCord from_coord, int direction, FixedCord step) {
   if((direction == NW) || (direction < E)) from_coord.i += step.i;  //up
   if((direction > N) && (direction < S)) from_coord.r += step.r;    //right
   if((direction > E) && (direction < W)) from_coord.i -= step.i;    //down
@@ -87,11 +82,17 @@ FixedCord get_neighbor_coord(FixedCord from_coord, int direction, FixedCord step
 
 
 size_t get_neighbor_index(size_t from_pixel, int direction, struct window win) {
-  //TODO gross since window is no longer constant
-  int neighbor_index_accl[8] = 
-    {-win.w, -win.w + 1, 1, win.w + 1, win.w, win.w - 1, -1, -win.w - 1};
-  from_pixel += neighbor_index_accl[direction];
-  return from_pixel;
+  switch(direction) {
+    case N:   return from_pixel - win.w;
+    case NE:  return from_pixel - win.w + 1;
+    case E:   return from_pixel + 1;
+    case SE:  return from_pixel + win.w + 1;
+    case S:   return from_pixel + win.w;
+    case SW:  return from_pixel + win.w - 1;
+    case W:   return from_pixel - 1;
+    case NW:  return from_pixel - win.w - 1;
+  }
+  return 0;
 }
 
 void detect_borders(bool borders[8], size_t i, struct window win) {
@@ -117,8 +118,6 @@ void detect_borders(bool borders[8], size_t i, struct window win) {
   }
 }
 
-enum VIEW_MODES { VIEW_UNINIT, VIEW_MANDREL, VIEW_SHIP };
-
 void init_colorscheme(uint16_t *scheme) {
   uint16_t *tc = scheme;
   for(unsigned int i = 0; i <= ITERS; i++) {
@@ -130,15 +129,6 @@ void init_colorscheme(uint16_t *scheme) {
   }
   scheme[0] = 0;
   scheme[ITERS] = 0;
-}
-
-void init_colorscheme_ship(uint16_t *scheme) {
-  uint16_t *tc = scheme;
-  for(unsigned int i = 0; i < ITERS; i++) {
-    if((i == 0) || (i == ITERS)) *tc = 0;
-    else *tc = (((i - (128)) << 1)+0x1f) << (5+6);
-    tc++;
-  }
 }
 
 void cam_shift(struct camera *cam, double step_r, double step_i) {
@@ -159,7 +149,7 @@ void cam_zoom(struct camera *cam, double zoom) {
   cam->max_r -= r_scale;
 }
 
-inline int  __attribute__((always_inline)) iterate(FixedCord c) {
+int iterate(FixedCord c) {
   int32_t z_i = 0;
   int32_t z_r = 0;
   int32_t z_r_2, z_i_2, zn_r, zn_i;
@@ -182,7 +172,12 @@ inline int  __attribute__((always_inline)) iterate(FixedCord c) {
 
 int iterate(FixedCord c);
 
-unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme, struct camera cam, const struct window win) {
+#define GET_X(index, win) (((index) % win.w) + win.x0) //TODO organize 
+#define GET_Y(index, win) ((this_index / (double)win.w) + win.y0)
+//no reason this needs to be global, this is just a last second addition and I'm in a hurry
+static bool demo = false; 
+
+unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, const uint16_t *colorscheme, const struct camera cam, const struct window win) {
   unsigned int total_iters = 0;
   size_t on_pixel = 0;
   bool border_scanning = false;
@@ -214,7 +209,8 @@ unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme
           int i = iterate(c);
           total_iters += i;
           framebuffer[on_pixel] = colorscheme[i];
-          if(i == ITERS) {
+          if(i != ITERS) { framebuffer[on_pixel] |= GCHAN_EXTERNAL; }
+          else {
             FixedCord this_coord = c;
             size_t this_index = on_pixel;
             bool seperated_from_start = false;
@@ -237,11 +233,16 @@ unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme
 
 
 
-            if(nei_dir < 8) {
+            if(nei_dir >= 8) border_scanning = true;
+            else {
               while(true) {
                 bzero(nei_presort, sizeof(nei_presort));
                 bzero(nei_canidate, sizeof(nei_canidate));
                 detect_borders(borders, this_index, win);
+                if(demo) {
+                  ST7735_DrawPixel(GET_X(this_index, win), GET_Y(this_index, win), ST7735_GREEN);
+                  HAL_Delay(10);
+                }
 
                 //step 1: check pixels around us, fill in neighbors.
 
@@ -288,7 +289,7 @@ unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme
                   }
 
                   for(nei_edge_i = -2; nei_edge_i <= 2; nei_edge_i++) {
-                    int nei_edge_mod = mod((nei_dir + nei_edge_i), 8);
+                    int nei_edge_mod = mod8(nei_dir + nei_edge_i);
                     if((nei_presort[nei_edge_mod] == GCHAN_EXTERNAL) || borders[nei_edge_mod]) break;
                   }
 
@@ -296,7 +297,7 @@ unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme
                   if(nei_edge_i > 2) continue;
 
                   //narrow bridge scenario
-                  if(nei_presort[mod((nei_dir + 1), 8)] & nei_presort[mod((nei_dir - 1), 8)] & GCHAN_EXTERNAL) 
+                  if(nei_presort[mod8(nei_dir + 1)] & nei_presort[mod8(nei_dir - 1)] & GCHAN_EXTERNAL) 
                     continue;
 
                   edge_cnt++;
@@ -321,9 +322,7 @@ unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme
                 }
               }
             }
-            else border_scanning = true;
           }
-          else framebuffer[on_pixel] |= GCHAN_EXTERNAL;
         }
       on_pixel++;
       c.r += scale.r;
@@ -334,20 +333,19 @@ unsigned int mandelbrot_bordertrace(uint16_t *framebuffer, uint16_t *colorscheme
   return total_iters;
 }
 
-//TODO rename
-unsigned int render_mandelbrot(uint16_t *framebuffer, uint16_t *colorscheme, struct camera cam, int x0, int y0, int w, int h) {
+unsigned int mandelbrot_unoptimized(uint16_t *framebuffer, const uint16_t *colorscheme, const struct camera cam, const struct window win) {
   int32_t scale_i = DOUBLE_TO_FIXED((cam.max_i - cam.min_i) / (double)RES_Y);
   int32_t scale_r = DOUBLE_TO_FIXED((cam.max_r - cam.min_r) / (double)RES_X);
-  int32_t c_i = DOUBLE_TO_FIXED((((cam.max_i - cam.min_i) * (RES_Y - y0)) / RES_Y) + cam.min_i);
-  int32_t c_r0 = DOUBLE_TO_FIXED((((cam.max_r - cam.min_r) * x0) / RES_X) + cam.min_r);
+  int32_t c_i = DOUBLE_TO_FIXED((((cam.max_i - cam.min_i) * (RES_Y - win.y0)) / RES_Y) + cam.min_i);
+  int32_t c_r0 = DOUBLE_TO_FIXED((((cam.max_r - cam.min_r) * win.x0) / RES_X) + cam.min_r);
   int32_t c_r, z_i, z_r, zn_r, z_r_2, z_i_2;
   size_t fb_index = 0;
   int i; 
   unsigned int total_iters = 0;
 
-  for(int y = y0; y < y0 + h; y++) {
+  for(int y = win.y0; y < win.y0 + win.h; y++) {
     c_r = c_r0;
-    for(int x = x0; x < x0 + w; x++) {
+    for(int x = win.x0; x < win.x0 + win.w; x++) {
       z_i = 0;
       z_r = 0;
       for(i = 0; i < ITERS; i++) {
@@ -376,36 +374,39 @@ unsigned int render_mandelbrot(uint16_t *framebuffer, uint16_t *colorscheme, str
 #define FB_SIZE_X RES_X/2
 #define FB_SIZE_Y RES_Y
 
-//TODO rename
-void draw_mandelbrot() {
+
+void render_loop() {
   uint16_t framebuffer[FB_SIZE_X * FB_SIZE_Y];
   uint16_t columnbuffer[(size_t)(STEP_SIZE * RES_X * RES_Y)];
   uint16_t left_line = 0;
-  //program flow is awful atm becuase I was planning something different; will be improved soon.
-  /**
-  static struct camera cam = {
-    .min_r = CAM_DEF_MIN_R,
-    .max_r = CAM_DEF_MAX_R,
-    .min_i = ((double)RES_Y / RES_X) * CAM_DEF_MIN_R,
-    .max_i = ((double)RES_Y / RES_X) * CAM_DEF_MAX_R,
+
+  uint16_t on_slide = 0; //for demo locations
+  struct camera demo_cams[] = {
+    (struct camera) {-1.422917204962495851817, -0.000225276304707995275, -1.422016598199103754041, 0.000225027077043296207},
+    (struct camera) {-1.438263106924943857123, -0.000223747558519589895, -1.436086818463690795156, 0.000864396672238325900},
+    (struct camera) {-0.090225435380407282, -0.64998091931263191, -0.088768020367418904, -0.64925221180605341},
+    (struct camera) {-1.438799496517434883813, -0.001121122635241165663, -1.434096351603858066071, 0.001230449821984478309},
+    (struct camera) {0.281321953633743959688, 0.485607916741705558650, 0.282220985515896194418, 0.486057432682865053764},
+    (struct camera) {1.463643582778787255450, -0.000020491662036057693, 1.463725101406749828925, 0.000020267651948646491}
   };
-  **/
+
+
   
+  //TODO change before gifting any cards
   struct camera cam = {
-    .min_r = 1.511138965827779623297, .min_i = -0.000099833545397436595, .max_r = 1.513299500557251375810, .max_i = 0.000980433819429512915
+    .min_r = -0.090225435380407282,
+    .min_i = -0.64998091931263191,
+    .max_r = -0.088768020367418904,
+    .max_i = -0.64925221180605341
   };
   uint16_t colorscheme[ITERS + 1];
 
-
-  
-  /** yes, I know the following is disgusting. Before I clean it, I just wanna get the general idea out, 
-    it's more efficient in that order
-    TODO once you  get your idea ironed out, clean code **/
-  
   init_colorscheme(colorscheme);
   bzero(framebuffer, sizeof(framebuffer));
   bzero(columnbuffer, sizeof(columnbuffer));
 
+  //ggyaaaagh!!!
+  //I will clean this up later.
   while(true) {
     const int y_offset = STEP_SIZE * FB_SIZE_Y;
     const int x_offset = STEP_SIZE * RES_X;
@@ -446,14 +447,27 @@ void draw_mandelbrot() {
         cam_zoom(&cam, -ZOOM_SIZE);
         mandelbrot_bordertrace(framebuffer, colorscheme, cam, (struct window){left_line, 0, FB_SIZE_X, FB_SIZE_Y});
         break;
+      case DEMO_NEXTVIEW:
+        cam = demo_cams[(++on_slide % (sizeof(demo_cams) / sizeof(*demo_cams)))];
+        mandelbrot_bordertrace(framebuffer, colorscheme, cam, (struct window){left_line, 0, FB_SIZE_X, FB_SIZE_Y});
+        break;
+      case DEMO_LASTVIEW:
+        cam = demo_cams[(--on_slide % (sizeof(demo_cams) / sizeof(*demo_cams)))];
+        mandelbrot_bordertrace(framebuffer, colorscheme, cam, (struct window){left_line, 0, FB_SIZE_X, FB_SIZE_Y});
+        break;
+      case DEMO_BORDER:
+        demo = true;
       default:
         mandelbrot_bordertrace(framebuffer, colorscheme, cam, (struct window){left_line, 0, FB_SIZE_X, FB_SIZE_Y});
     }
-    ST7735_DrawImage(left_line, 0, FB_SIZE_X, FB_SIZE_Y, framebuffer);
+
+    if(!demo) ST7735_DrawImage(left_line, 0, FB_SIZE_X, FB_SIZE_Y, framebuffer);
 
     left_line = left_line ? 0 : FB_SIZE_X; 
     mandelbrot_bordertrace(framebuffer, colorscheme, cam, (struct window){left_line, 0, FB_SIZE_X, FB_SIZE_Y});
-    ST7735_DrawImage(left_line, 0, FB_SIZE_X, FB_SIZE_Y, framebuffer);
+    if(!demo) ST7735_DrawImage(left_line, 0, FB_SIZE_X, FB_SIZE_Y, framebuffer);
+
+    demo = false;
     idle();
   }
 }

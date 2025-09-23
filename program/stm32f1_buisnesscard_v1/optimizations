@@ -1,4 +1,0 @@
-border tracing - 255 iter only!
-frame shift
-  change: side that has most iterations is the saved fb
-benchamrking: make shift benchmark

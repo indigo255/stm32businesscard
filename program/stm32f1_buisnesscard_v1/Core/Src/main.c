@@ -125,9 +125,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+//  benchmark();
   while (1)
   {
-    draw_mandelbrot();
+    render_loop();
+//    benchmark();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
