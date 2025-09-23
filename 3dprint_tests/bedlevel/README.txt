@@ -1,1 +1,0 @@
-Bed Leveling Calibration Test Object (Parametric) by pgreenland on Thingiverse: https://www.thingiverse.com/thing:34558
