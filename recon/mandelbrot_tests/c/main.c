@@ -582,7 +582,8 @@ int main() {
     printf("Unoptimized: %u iterations, %f seconds\n", unoptimized_iters, time_unoptimized);
 
     begin = clock();
-    unsigned int optimized_iters = mandelbrot_bordertrace(&cam, pixels_unoptimized);
+    //unsigned int optimized_iters = mandelbrot_bordertrace(&cam, pixels_unoptimized);
+    unsigned int optimized_iters = 0;
     end = clock();
 
     time_optimized = (double)(end - begin) / CLOCKS_PER_SEC;
