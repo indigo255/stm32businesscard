@@ -5259,16 +5259,6 @@
 		)
 		(uuid "3002dedb-2703-489f-882f-bab25b7dda33")
 	)
-	(text "I finished this in a rush and I'm not sure why I did this.\nR21 should be a short and there needs to be a resistor instead of a diode."
-		(exclude_from_sim no)
-		(at 84.074 149.352 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "5473d214-3849-47a5-8b2b-db0b7c7e51f5")
-	)
 	(text "double check voltage diviers, maybe push higher - LCSC!"
 		(exclude_from_sim no)
 		(at 43.434 -3.556 0)
