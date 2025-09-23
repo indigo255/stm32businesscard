@@ -5,7 +5,7 @@ I made a buisness card that uses an STM32 to allow exploration of a modified man
 * Custom bordertracing algorithm to accelerate use
 * Custom modification of mandelbrot for pretty pictures
  
-<img src="writeup/dirty_card.jpg" width="800"/>
+<img src="writeup/dirty_card.png" width="400"/>
 
 # Code
 I used STM32's HAL to speed up development, which has unfortunately left the project a mess. The source files are [here](program/stm32f1_buisnesscard_v1/Core/Src) and header files [here](program/stm32f1_buisnesscard_v1/Core/Inc).
