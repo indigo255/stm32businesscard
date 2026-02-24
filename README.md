@@ -55,8 +55,10 @@ I got border tracing working by tracking pixel locations with multiple detectabl
 
 To prevent pixels from being re-rendered, I stored information in the green channel of the image. My images never used green anyway, and I wouldn’t have to eat any more memory (I only had ~500 bytes left). Using the green channel also gave me a conveniently visual way to debug.
 
-## I can't embed video files so watch this its cool
-![video](https://git.bpcspace.com/indigo/stm32_business_card/raw/branch/main/writeup/bordertracing.mp4)
+## Border Tracing in Action
+https://github.com/user-attachments/assets/f47e8c3c-38c0-41ec-97d2-28774dae4d73
+
+
 
 ## Benchmarking Border Tracing Performance
 I wrote a GDB script to benchmark performance with and without border tracing. Results improved up to 75%. I was planning on including a table and images here, but I'm running out of time writing this article. I will likely add it later!  
